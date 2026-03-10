@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProjectOPS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d1117;
+  --bg2:      #131921;
+  --surface:  #161d27;
+  --surface2: #1c2535;
+  --surface3: #222e42;
+  --border:   #1e2d42;
+  --border2:  #2a3f5c;
+  --border3:  #334d6e;
+
+  --text:     #e2e8f0;
+  --text2:    #8fa3be;
+  --text3:    #4a6080;
+
+  --accent:       #4a7fa5;
+  --accent2:      #5a95c0;
+  --accent-dim:   rgba(74,127,165,0.15);
+  --accent-glow:  rgba(74,127,165,0.08);
+
+  --gold:         #c8a84b;
+  --gold-dim:     rgba(200,168,75,0.12);
+  --red:          #c0392b;
+  --red-dim:      rgba(192,57,43,0.12);
+  --green:        #2e8b57;
+  --green-dim:    rgba(46,139,87,0.12);
+  --amber:        #c87533;
+  --amber-dim:    rgba(200,117,51,0.12);
+  --blue:         #4a7fa5;
+  --blue-dim:     rgba(74,127,165,0.12);
+  --purple:       #7c5cbf;
+  --purple-dim:   rgba(124,92,191,0.12);
+
+  --shadow:  0 1px 4px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow2: 0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 var(--border), 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--accent-dim);
+  color: var(--accent2);
+  border: 1px solid rgba(74,127,165,0.25);
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+.cu-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.cu-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text3);
+}
+
+.cu-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.cu-dot.error { background: var(--red); }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+/* ── BUTTONS ─────────────────────────────────────────────── */
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-ghost  { background: transparent; color: var(--text2); border-color: var(--border2); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+.btn-surface { background: var(--surface2); color: var(--text2); border-color: var(--border2); }
+.btn-surface:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: var(--red-dim); color: #e06060; border-color: rgba(192,57,43,0.3); }
+.btn-danger:hover { background: rgba(192,57,43,0.2); }
+.btn-cu { background: var(--purple-dim); color: #a07de0; border-color: rgba(124,92,191,0.3); font-size: 10px; padding: 4px 10px; }
+.btn-cu:hover { background: rgba(124,92,191,0.2); }
+.btn-sm { padding: 5px 10px; font-size: 10px; }
+.btn-xs { padding: 3px 8px; font-size: 9px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 214px 1fr;
+  min-height: calc(100vh - 54px);
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 18px 0;
+  position: sticky;
+  top: 54px;
+  height: calc(100vh - 54px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 0 16px;
+  margin-bottom: 8px;
+}
+
+.vertical-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-left: 2px solid transparent;
+}
+
+.vertical-item:hover { background: var(--surface2); }
+.vertical-item.active { background: var(--accent-glow); border-left-color: var(--accent); }
+
+.v-pip { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+.v-info { flex: 1; min-width: 0; }
+.v-name { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vertical-item.active .v-name { color: var(--accent2); font-weight: 500; }
+.v-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.v-code { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); }
+.v-cu-icon { font-size: 9px; color: var(--purple); opacity: 0.7; }
+
+.v-count { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); background: var(--surface3); padding: 1px 6px; border-radius: 8px; }
+.vertical-item.active .v-count { background: var(--accent-dim); color: var(--accent); }
+
+.sidebar-footer { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.sidebar-footer button { width: 100%; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); background: none; border: 1px dashed var(--border2); border-radius: 3px; padding: 7px; cursor: pointer; transition: all 0.15s; }
+.sidebar-footer button:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── CONTENT ─────────────────────────────────────────────── */
+.content { padding: 26px 30px; overflow-y: auto; }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.page-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); line-height: 1.2; }
+.page-meta { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: 'DM Mono', monospace; letter-spacing: 0.03em; }
+
+/* ── STATS ─────────────────────────────────────────────── */
+.stats-row {
+  display: flex;
+  gap: 1px;
+  margin-bottom: 24px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.stat-cell {
+  background: var(--surface);
+  padding: 13px 18px;
+  flex: 1;
+}
+
+.stat-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); }
+.stat-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-top: 2px; }
+
+/* ── GOAL CARD ─────────────────────────────────────────── */
+.goal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s;
+}
+
+.goal-card:hover { border-color: var(--border2); }
+.goal-card.dragging { opacity: 0.35; }
+.goal-card.drag-over { border-color: var(--accent); border-style: dashed; }
+
+.goal-header {
+  padding: 15px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.goal-drag { color: var(--text3); font-size: 13px; cursor: grab; padding-top: 2px; flex-shrink: 0; }
+.goal-drag:active { cursor: grabbing; }
+
+.goal-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  padding: 2px 7px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.goal-body { flex: 1; min-width: 0; }
+
+.goal-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  padding-left: 10px;
+  line-height: 1.3;
+}
+
+.goal-pills { display: flex; align-items: center; gap: 7px; margin-top: 5px; padding-left: 10px; flex-wrap: wrap; }
+
+.pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+.pill-deliverable { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(200,168,75,0.2); }
+.pill-timebox     { background: var(--blue-dim); color: var(--accent2); border: 1px solid rgba(74,127,165,0.2); }
+.pill-date        { background: var(--surface2); color: var(--text3); border: 1px solid var(--border2); }
+.pill-vert        { display: inline-flex; align-items: center; gap: 4px; background: var(--surface2); color: var(--text3); border: 1px solid var(--border2); }
+
+.goal-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+
+.goal-proj-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  padding: 3px 9px;
+  border-radius: 10px;
+}
+
+.goal-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+.goal-card:hover .goal-actions { opacity: 1; }
+
+.icon-btn {
+  width: 27px; height: 27px;
+  display: flex; align-items: center; justify-content: center;
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text3);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.icon-btn.del:hover { border-color: var(--red); color: #e06060; background: var(--red-dim); }
+
+.chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; flex-shrink: 0; }
+.goal-card.expanded .chevron { transform: rotate(90deg); }
+
+/* ── GOAL DESC PANEL ─────────────────────────────────────── */
+.goal-info-panel {
+  display: none;
+  padding: 0 18px 14px 52px;
+  gap: 12px;
+}
+
+.goal-card.expanded .goal-info-panel { display: flex; }
+
+.info-block {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 11px 13px;
+}
+
+.info-block-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+.info-block-text {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+/* ── CLICKUP LINK ─────────────────────────────────────────── */
+.cu-link-row {
+  display: none;
+  padding: 0 18px 12px 52px;
+}
+
+.goal-card.expanded .cu-link-row { display: flex; align-items: center; gap: 8px; }
+
+.cu-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--purple);
+  background: var(--purple-dim);
+  border: 1px solid rgba(124,92,191,0.25);
+  border-radius: 3px;
+  padding: 5px 11px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.cu-link-btn:hover { background: rgba(124,92,191,0.2); border-color: rgba(124,92,191,0.4); }
+
+.cu-pending {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  font-style: italic;
+}
+
+/* ── KANBAN ─────────────────────────────────────────────── */
+.projects-panel {
+  display: none;
+  border-top: 1px solid var(--border);
+}
+
+.goal-card.expanded .projects-panel { display: block; }
+
+.kanban-toolbar {
+  padding: 9px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.archived-toggle {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  overflow-x: auto;
+}
+
+.kanban-col {
+  border-right: 1px solid var(--border);
+  min-height: 120px;
+}
+
+.kanban-col:last-child { border-right: none; }
+
+.kanban-col-header {
+  padding: 9px 13px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.col-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.col-backlog  .col-label { color: var(--text3); }
+.col-progress .col-label { color: var(--accent2); }
+.col-blocked  .col-label { color: #e06060; }
+.col-done     .col-label { color: var(--gold); }
+
+.col-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  background: var(--surface3);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.kanban-cards {
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 70px;
+}
+
+.kanban-cards.drag-over-col { background: var(--accent-glow); }
+
+/* ── PROJECT CARD ─────────────────────────────────────────── */
+.project-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 10px 12px;
+  cursor: grab;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.project-card:hover { border-color: var(--border3); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.project-card:active { cursor: grabbing; }
+.project-card.card-dragging { opacity: 0.35; }
+.project-card.card-drag-over { border-color: var(--accent); }
+.project-card.archived-card { opacity: 0.4; border-style: dashed; }
+
+.p-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+}
+
+.p-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.p-desc {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-bottom: 7px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.p-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.p-footer-left { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+
+.type-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.p-cu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--purple);
+  background: var(--purple-dim);
+  border: 1px solid rgba(124,92,191,0.2);
+  border-radius: 2px;
+  padding: 2px 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.p-cu-btn:hover { background: rgba(124,92,191,0.2); }
+
+.p-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+.project-card:hover .p-actions { opacity: 1; }
+.project-card .icon-btn { width: 22px; height: 22px; font-size: 10px; }
+
+.empty-col { text-align: center; padding: 14px 8px; color: var(--text3); font-size: 10px; font-family: 'DM Mono', monospace; }
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  border: 1px dashed var(--border2);
+  border-radius: 4px;
+  color: var(--text3);
+}
+
+.empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text2); margin-bottom: 8px; }
+.empty-state p { font-size: 13px; line-height: 1.6; }
+
+/* ── MODAL ─────────────────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  width: 100%;
+  max-width: 520px;
+  padding: 26px;
+  box-shadow: var(--shadow2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-wide { max-width: 600px; }
+
+.modal-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.form-group { margin-bottom: 15px; }
+
+.form-label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+.form-label span { font-size: 9px; color: var(--text3); text-transform: none; letter-spacing: 0; }
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  padding: 9px 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.form-textarea { resize: vertical; min-height: 78px; }
+.form-select option { background: var(--surface2); }
+.form-hint { font-size: 10px; color: var(--text3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.code-preview {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent2);
+  background: var(--accent-dim);
+  border: 1px solid rgba(74,127,165,0.25);
+  border-radius: 3px;
+  padding: 9px 12px;
+  letter-spacing: 0.05em;
+}
+
+.modal-section {
+  border-top: 1px solid var(--border);
+  margin: 18px 0 15px;
+  padding-top: 15px;
+}
+
+.modal-section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.modal-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 22px; }
+
+.notice {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+  padding: 10px 13px;
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.notice.warn { border-left-color: var(--amber); }
+.notice.error { border-left-color: var(--red); }
+
+/* ── COLOR PICKER ─────────────────────────────────────────── */
+.color-grid { display: flex; gap: 7px; flex-wrap: wrap; }
+.color-swatch {
+  width: 24px; height: 24px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.1s;
+}
+.color-swatch.selected { border-color: var(--text); transform: scale(1.2); }
+
+/* ── TYPES MANAGER ─────────────────────────────────────────── */
+.type-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.type-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; }
+.type-row span { flex: 1; font-size: 13px; color: var(--text2); }
+.type-row button { font-size: 10px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 2px; font-family: 'DM Mono', monospace; }
+.type-row button:hover { color: #e06060; background: var(--red-dim); }
+
+/* ── EXPORT ─────────────────────────────────────────────── */
+.export-pre {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text2);
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 13px;
+  max-height: 260px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  margin-top: 10px;
+}
+
+/* ── TOAST ─────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 18px; right: 18px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--accent);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 10px 16px;
+  border-radius: 3px;
+  z-index: 500;
+  animation: toastIn 0.2s ease;
+  box-shadow: var(--shadow2);
+  max-width: 320px;
+}
+
+.toast.success { border-left-color: var(--green); }
+.toast.error   { border-left-color: var(--red); }
+.toast.warn    { border-left-color: var(--amber); }
+
+@keyframes toastIn { from { transform: translateY(6px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ── SPINNER ─────────────────────────────────────────────── */
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── SCROLLBAR ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+@media (max-width: 680px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .kanban-board { grid-template-columns: repeat(2,1fr); }
+  .content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    ProjectOPS
+    <span class="logo-badge">Strategic Layer</span>
+  </div>
+  <div class="header-right">
+    <div class="cu-status">
+      <div class="cu-dot" id="cuDot"></div>
+      <span id="cuStatusText">ClickUp</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="manageTypesBtn">⚙ Types</button>
+    <button class="btn btn-ghost btn-sm" id="exportBtn">↓ Export</button>
+    <button class="btn btn-primary btn-sm" id="addGoalBtn">+ Goal</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div style="padding-bottom:12px">
+      <div class="sidebar-label">Verticals</div>
+      <div id="verticalList"></div>
+    </div>
+    <div class="sidebar-footer">
+      <button id="addVerticalBtn">+ New Vertical</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">All Goals</div>
+        <div class="page-meta" id="pageMeta"></div>
+      </div>
+      <button class="btn btn-surface btn-sm" id="pageAddGoalBtn">+ Add Goal</button>
+    </div>
+    <div class="stats-row" id="statsRow"></div>
+    <div id="goalsList"></div>
+  </main>
+</div>
+
+<!-- VERTICAL MODAL -->
+<div class="overlay" id="verticalModal" style="display:none">
+  <div class="modal">
+    <div class="modal-title" id="vModalTitle">New Vertical</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Vertical Name</label>
+        <input class="form-input" id="vName" placeholder="e.g. Acme Corp">
+      </div>
+      <div class="form-group">
+        <label class="form-label">4-Char Code</label>
+        <input class="form-input" id="vCode" placeholder="ACME" maxlength="4"
+          style="font-family:'DM Mono',monospace;text-transform:uppercase;font-weight:500;letter-spacing:0.1em">
+        <div class="form-hint">Unique · root of all project codes</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="color-grid" id="vColorGrid"></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">ClickUp Integration</div>
+      <div class="notice">
+        Create your Space in ClickUp first (using your preferred template), then paste the Space ID below.
+        Goals and Projects created under this Vertical will automatically create Folders and Lists in this Space.
+      </div>
+      <div class="form-group">
+        <label class="form-label">ClickUp Space ID <span>(optional — paste from ClickUp URL)</span></label>
+        <input class="form-input" id="vSpaceId" placeholder="e.g. 90112345678"
+          style="font-family:'DM Mono',monospace">
+        <div class="form-hint" id="vSpaceStatus"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="vVerifySpace">Verify Space</button>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="vCancel">Cancel</button>
+      <button class="btn btn-primary" id="vSave">Save Vertical</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOAL MODAL -->
+<div class="overlay" id="goalModal" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-title" id="gModalTitle">New Goal</div>
+    <div class="form-group">
+      <label class="form-label">Goal Name</label>
+      <input class="form-input" id="gName" placeholder="What are we trying to achieve?">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="gType">
+          <option value="deliverable">Deliverable</option>
+          <option value="timebox">Time-boxed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Vertical</label>
+        <select class="form-select" id="gVertical"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Target Date</label>
+        <input type="date" class="form-input" id="gDate">
+      </div>
+      <div class="form-group" id="gEndDateGroup" style="display:none">
+        <label class="form-label">End Date</label>
+        <input type="date" class="form-input" id="gEndDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description <span>(what's in scope)</span></label>
+      <textarea class="form-textarea" id="gDesc" placeholder="Describe the scope and intent of this goal..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Boundaries <span>(exclusions / anti-scope-creep guardrails)</span></label>
+      <textarea class="form-textarea" id="gBoundaries" placeholder="What is explicitly out of scope?"></textarea>
+    </div>
+    <div id="gCuSection" style="display:none">
+      <div class="modal-section">
+        <div class="modal-section-title">ClickUp</div>
+        <div class="notice" id="gCuNotice"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="gCancel">Cancel</button>
+      <button class="btn btn-primary" id="gSave">
+        <span id="gSaveLabel">Save Goal</span>
+        <span id="gSaveSpinner" style="display:none" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="overlay" id="projectModal" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-title" id="pModalTitle">New Project</div>
+    <div class="form-group">
+      <label class="form-label">Auto-Generated Code</label>
+      <div class="code-preview" id="pCodePreview">—</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Short Descriptor <span>(1–2 words appended to code)</span></label>
+      <input class="form-input" id="pDescriptor" placeholder="e.g. Website, Brand, Audit">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Human-Readable Name</label>
+      <input class="form-input" id="pName" placeholder="Full descriptive name shown on card">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Project Type</label>
+        <select class="form-select" id="pType">
+          <option value="">— Select Type —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="pStatus">
+          <option value="backlog">Backlog</option>
+          <option value="progress">In Progress</option>
+          <option value="blocked">Blocked</option>
+          <option value="done">Done</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description / Status Narrative</label>
+      <textarea class="form-textarea" id="pDesc" placeholder="High-level description or current status update..."></textarea>
+    </div>
+    <div id="pCuSection" style="display:none">
+      <div class="modal-section">
+        <div class="modal-section-title">ClickUp</div>
+        <div class="notice" id="pCuNotice"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="pCancel">Cancel</button>
+      <button class="btn btn-primary" id="pSave">
+        <span id="pSaveLabel">Save Project</span>
+        <span id="pSaveSpinner" style="display:none" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TYPES MODAL -->
+<div class="overlay" id="typesModal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">Manage Project Types</div>
+    <div id="typesList"></div>
+    <div class="form-row" style="margin-top:8px">
+      <input class="form-input" id="newTypeName" placeholder="New type name...">
+      <button class="btn btn-primary" id="addTypeBtn">Add Type</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="typesClose">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="overlay" id="exportModal" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-title">Export Landscape</div>
+    <div class="form-group">
+      <label class="form-label">Format</label>
+      <select class="form-select" id="exportFormat">
+        <option value="text">Plain Text — Executive Summary</option>
+        <option value="markdown">Markdown</option>
+        <option value="csv">CSV</option>
+      </select>
+    </div>
+    <div class="export-pre" id="exportPre"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="exportClose">Close</button>
+      <button class="btn btn-primary" id="exportCopy">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const COLORS = [
+  '#4a7fa5','#5c9bd6','#3a6b8a',
+  '#c0392b','#e67e22','#c8a84b',
+  '#2e8b57','#7c5cbf','#c0608b',
+  '#2980b9','#16a085','#8e6b3e',
+  '#5d6d7e','#922b21','#1a5276'
+];
+
+const KANBAN_COLS = ['backlog','progress','blocked','done'];
+const STATUS_LABELS = { backlog:'Backlog', progress:'In Progress', blocked:'Blocked', done:'Done', archived:'Archived' };
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let S = {
+  verticals: [],
+  goals: [],
+  projects: [],
+  types: ['Strategy','Design','Development','Content','Operations','Research'],
+  activeVerticalId: null
+};
+
+let editingVerticalId = null;
+let editingGoalId = null;
+let editingProjectId = null;
+let editingProjectGoalId = null;
+let selectedColor = COLORS[0];
+let showArchived = {};
+
+function load() {
+  try {
+    const d = localStorage.getItem('projectops_v3');
+    if (d) S = { ...S, ...JSON.parse(d) };
+  } catch(e) {}
+  ['verticals','goals','projects','types'].forEach(k => { if (!S[k]) S[k] = []; });
+}
+
+function save() { localStorage.setItem('projectops_v3', JSON.stringify(S)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ═══════════════════════════════════════════════════════════
+// CLICKUP API
+// ═══════════════════════════════════════════════════════════
+let cuConnected = false;
+
+async function cuCall(method, path, body = null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+
+  const res = await fetch(`/api/clickup?path=${encodeURIComponent(path)}`, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.err || data.error || `ClickUp error ${res.status}`);
+  return data;
+}
+
+async function checkCuConnection() {
+  try {
+    await cuCall('GET', '/user');
+    cuConnected = true;
+    document.getElementById('cuDot').className = 'cu-dot connected';
+    document.getElementById('cuStatusText').textContent = 'ClickUp ✓';
+  } catch(e) {
+    cuConnected = false;
+    document.getElementById('cuDot').className = 'cu-dot error';
+    document.getElementById('cuStatusText').textContent = 'ClickUp ✗';
+  }
+}
+
+// Create folder in a space
+async function cuCreateFolder(spaceId, name) {
+  return await cuCall('POST', `/space/${spaceId}/folder`, { name });
+}
+
+// Create list in a folder
+async function cuCreateList(folderId, name) {
+  return await cuCall('POST', `/folder/${folderId}/list`, { name });
+}
+
+// Archive a list
+async function cuArchiveList(listId) {
+  return await cuCall('PUT', `/list/${listId}`, { archived: true });
+}
+
+// Verify a space exists
+async function cuVerifySpace(spaceId) {
+  return await cuCall('GET', `/space/${spaceId}`);
+}
+
+function cuFolderUrl(folderId) {
+  return `https://app.clickup.com/`;
+}
+
+function cuListUrl(listId) {
+  return `https://app.clickup.com/`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DATES & CODES
+// ═══════════════════════════════════════════════════════════
+function isoWeek(d) {
+  const date = new Date(d);
+  date.setHours(0,0,0,0);
+  date.setDate(date.getDate() + 3 - (date.getDay()+6)%7);
+  const w1 = new Date(date.getFullYear(),0,4);
+  return 1 + Math.round(((date-w1)/86400000 - 3 + (w1.getDay()+6)%7)/7);
+}
+
+function nextProjectCode(verticalId) {
+  const v = S.verticals.find(x => x.id === verticalId);
+  if (!v) return null;
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const ww = String(isoWeek(now)).padStart(2,'0');
+  const prefix = `${v.code}-${yy}${ww}`;
+  const existing = S.projects.filter(p => p.codePrefix === prefix);
+  const letter = String.fromCharCode(65 + existing.length);
+  return { prefix, base: prefix + letter };
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const [y,m,day] = d.split('-');
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1] + ` ${+day}, ${y}`;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+function render() {
+  renderSidebar();
+  renderContent();
+  save();
+}
+
+function renderSidebar() {
+  const el = document.getElementById('verticalList');
+  let html = `<div class="vertical-item ${!S.activeVerticalId?'active':''}" data-vid="all">
+    <div class="v-pip" style="background:#4a6080"></div>
+    <div class="v-info"><div class="v-name">All Verticals</div></div>
+    <span class="v-count">${S.goals.length}</span>
+  </div>`;
+
+  S.verticals.forEach(v => {
+    const gc = S.goals.filter(g => g.verticalId===v.id).length;
+    const hasCu = !!v.spaceId;
+    html += `<div class="vertical-item ${S.activeVerticalId===v.id?'active':''}" data-vid="${v.id}">
+      <div class="v-pip" style="background:${v.color}"></div>
+      <div class="v-info">
+        <div class="v-name">${esc(v.name)}</div>
+        <div class="v-meta">
+          <span class="v-code">${esc(v.code)}</span>
+          ${hasCu?'<span class="v-cu-icon">⬡</span>':''}
+        </div>
+      </div>
+      <span class="v-count">${gc}</span>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+
+  el.querySelectorAll('.vertical-item').forEach(item => {
+    item.addEventListener('click', () => {
+      S.activeVerticalId = item.dataset.vid === 'all' ? null : item.dataset.vid;
+      render();
+    });
+    item.addEventListener('dblclick', e => {
+      if (item.dataset.vid !== 'all') { e.stopPropagation(); openVerticalModal(item.dataset.vid); }
+    });
+  });
+}
+
+function filteredGoals() {
+  return S.activeVerticalId ? S.goals.filter(g => g.verticalId===S.activeVerticalId) : [...S.goals];
+}
+
+function renderContent() {
+  const goals = filteredGoals();
+  const v = S.activeVerticalId ? S.verticals.find(x => x.id===S.activeVerticalId) : null;
+
+  document.getElementById('pageTitle').textContent = v ? v.name : 'All Goals';
+  const activeP = goals.reduce((a,g) => a + S.projects.filter(p=>p.goalId===g.id&&p.status!=='archived').length, 0);
+  document.getElementById('pageMeta').textContent =
+    `${goals.length} goal${goals.length!==1?'s':''} · ${activeP} active project${activeP!==1?'s':''}${v?' · '+v.code:''}`;
+
+  const prog = goals.reduce((a,g)=>a+S.projects.filter(p=>p.goalId===g.id&&p.status==='progress').length,0);
+  const bloc = goals.reduce((a,g)=>a+S.projects.filter(p=>p.goalId===g.id&&p.status==='blocked').length,0);
+  const done = goals.reduce((a,g)=>a+S.projects.filter(p=>p.goalId===g.id&&p.status==='done').length,0);
+  const back = goals.reduce((a,g)=>a+S.projects.filter(p=>p.goalId===g.id&&p.status==='backlog').length,0);
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-cell"><div class="stat-val">${goals.length}</div><div class="stat-label">Goals</div></div>
+    <div class="stat-cell"><div class="stat-val" style="color:var(--text3)">${back}</div><div class="stat-label">Backlog</div></div>
+    <div class="stat-cell"><div class="stat-val" style="color:var(--accent2)">${prog}</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-cell"><div class="stat-val" style="color:#e06060">${bloc}</div><div class="stat-label">Blocked</div></div>
+    <div class="stat-cell"><div class="stat-val" style="color:var(--gold)">${done}</div><div class="stat-label">Done</div></div>
+  `;
+
+  const el = document.getElementById('goalsList');
+
+  if (!goals.length) {
+    el.innerHTML = `<div class="empty-state">
+      <h3>No goals yet</h3>
+      <p>Add a goal to start mapping your strategic landscape.</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = goals.map((g, idx) => {
+    const vert = S.verticals.find(x=>x.id===g.verticalId);
+    const vColor = vert ? vert.color : '#4a6080';
+    const projects = S.projects.filter(p=>p.goalId===g.id);
+    const activeCount = projects.filter(p=>p.status!=='archived').length;
+    const showArch = showArchived[g.id]||false;
+
+    // ClickUp folder link
+    const cuRow = g.cuFolderId
+      ? `<a class="cu-link-btn" href="https://app.clickup.com/t/${g.cuFolderId}" target="_blank">⬡ Open in ClickUp</a>`
+      : (vert&&vert.spaceId&&cuConnected ? `<span class="cu-pending">Folder not yet created — re-save this goal to sync</span>` : '');
+
+    const descPanel = (g.description||g.boundaries) ? `
+      <div class="goal-info-panel">
+        ${g.description?`<div class="info-block"><div class="info-block-label">Description</div><div class="info-block-text">${esc(g.description)}</div></div>`:''}
+        ${g.boundaries?`<div class="info-block"><div class="info-block-label">Boundaries</div><div class="info-block-text">${esc(g.boundaries)}</div></div>`:''}
+      </div>` : '';
+
+    return `<div class="goal-card" data-goal-id="${g.id}" draggable="true">
+      <div class="goal-header">
+        <span class="goal-drag">⠿</span>
+        <span class="goal-num">#${idx+1}</span>
+        <div class="goal-body">
+          <div class="goal-name" style="border-left:3px solid ${vColor}">${esc(g.name)}</div>
+          <div class="goal-pills">
+            ${g.type==='deliverable'?'<span class="pill pill-deliverable">Deliverable</span>':'<span class="pill pill-timebox">Time-boxed</span>'}
+            ${g.date?`<span class="pill pill-date">${fmtDate(g.date)}${g.endDate?' → '+fmtDate(g.endDate):''}</span>`:''}
+            ${vert?`<span class="pill pill-vert"><span style="width:6px;height:6px;border-radius:1px;background:${vColor};display:inline-block"></span>${esc(vert.name)}</span>`:''}
+          </div>
+        </div>
+        <div class="goal-right">
+          <span class="goal-proj-count">${activeCount} project${activeCount!==1?'s':''}</span>
+          <div class="goal-actions">
+            <button class="icon-btn" data-edit-goal="${g.id}" title="Edit">✎</button>
+            <button class="icon-btn del" data-del-goal="${g.id}" title="Delete">✕</button>
+          </div>
+          <span class="chevron">▶</span>
+        </div>
+      </div>
+      ${descPanel}
+      ${cuRow ? `<div class="cu-link-row">${cuRow}</div>` : ''}
+      <div class="projects-panel">
+        <div class="kanban-toolbar">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn btn-surface btn-sm" data-add-project="${g.id}">+ Add Project</button>
+            <label class="archived-toggle">
+              <input type="checkbox" ${showArch?'checked':''} data-archived-toggle="${g.id}"> Show archived
+            </label>
+          </div>
+        </div>
+        <div class="kanban-board" data-kanban-goal="${g.id}">
+          ${KANBAN_COLS.map(status => {
+            const colPs = projects.filter(p=>p.status===status);
+            const archPs = showArch ? projects.filter(p=>p.status==='archived') : [];
+            const showArchInDone = status==='done' && archPs.length;
+            return `<div class="kanban-col col-${status}">
+              <div class="kanban-col-header">
+                <span class="col-label">${STATUS_LABELS[status]}</span>
+                <span class="col-count">${colPs.length}</span>
+              </div>
+              <div class="kanban-cards" data-cards-status="${status}" data-cards-goal="${g.id}">
+                ${colPs.map(p=>renderProjectCard(p)).join('')}
+                ${!colPs.length&&!showArchInDone?'<div class="empty-col">—</div>':''}
+                ${showArchInDone?archPs.map(p=>renderProjectCard(p,true)).join(''):''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  bindGoalEvents(el);
+  setupGoalDrag();
+  setupCardDrag();
+}
+
+function renderProjectCard(p, isArch=false) {
+  const cuBtn = p.cuListId
+    ? `<a class="p-cu-btn" href="https://app.clickup.com/t/${p.cuListId}" target="_blank">⬡</a>`
+    : '';
+  return `<div class="project-card ${isArch?'archived-card':''}" data-project-id="${p.id}" draggable="true">
+    <div class="p-code">${esc(p.fullCode||'')}</div>
+    <div class="p-name">${esc(p.name)}</div>
+    ${p.description?`<div class="p-desc">${esc(p.description)}</div>`:''}
+    <div class="p-footer">
+      <div class="p-footer-left">
+        ${p.type?`<span class="type-tag">${esc(p.type)}</span>`:''}
+        ${cuBtn}
+      </div>
+      <div class="p-actions">
+        <button class="icon-btn" data-edit-project="${p.id}" title="Edit">✎</button>
+        <button class="icon-btn del" data-del-project="${p.id}" title="Delete">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function bindGoalEvents(el) {
+  el.querySelectorAll('.goal-header').forEach(h => {
+    h.addEventListener('click', e => {
+      if (e.target.closest('[data-edit-goal],[data-del-goal]')) return;
+      h.closest('.goal-card').classList.toggle('expanded');
+    });
+  });
+
+  el.querySelectorAll('[data-edit-goal]').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openGoalModal(b.dataset.editGoal); });
+  });
+
+  el.querySelectorAll('[data-del-goal]').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = b.dataset.delGoal;
+      const pc = S.projects.filter(p=>p.goalId===id).length;
+      if (confirm(`Delete this goal${pc?' and its '+pc+' project(s)':''}?`)) {
+        S.goals = S.goals.filter(g=>g.id!==id);
+        S.projects = S.projects.filter(p=>p.goalId!==id);
+        render(); toast('Goal deleted');
+      }
+    });
+  });
+
+  el.querySelectorAll('[data-add-project]').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openProjectModal(null, b.dataset.addProject); });
+  });
+
+  el.querySelectorAll('[data-edit-project]').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openProjectModal(b.dataset.editProject); });
+  });
+
+  el.querySelectorAll('[data-del-project]').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      if (confirm('Delete this project?')) {
+        S.projects = S.projects.filter(p=>p.id!==b.dataset.delProject);
+        render(); toast('Project deleted');
+      }
+    });
+  });
+
+  el.querySelectorAll('[data-archived-toggle]').forEach(cb => {
+    cb.addEventListener('change', e => {
+      e.stopPropagation();
+      showArchived[cb.dataset.archivedToggle] = cb.checked;
+      const exp = getExpanded();
+      render();
+      restoreExpanded(exp);
+      setTimeout(() => {
+        const c = document.querySelector(`[data-goal-id="${cb.dataset.archivedToggle}"]`);
+        if (c) c.classList.add('expanded');
+      }, 10);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAG
+// ═══════════════════════════════════════════════════════════
+let dragGoalId = null, dragCardId = null;
+
+function getExpanded() {
+  return [...document.querySelectorAll('.goal-card.expanded')].map(c=>c.dataset.goalId);
+}
+
+function restoreExpanded(ids) {
+  ids.forEach(id => {
+    const c = document.querySelector(`[data-goal-id="${id}"]`);
+    if (c) c.classList.add('expanded');
+  });
+}
+
+function setupGoalDrag() {
+  document.querySelectorAll('.goal-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      if (e.target.closest('.project-card')) return;
+      dragGoalId = card.dataset.goalId; dragCardId = null;
+      setTimeout(() => card.classList.add('dragging'), 0);
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.goal-card').forEach(c=>c.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover', e => { if(dragCardId) return; e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      if (dragCardId) return;
+      e.preventDefault(); card.classList.remove('drag-over');
+      const tid = card.dataset.goalId;
+      if (dragGoalId && tid && dragGoalId !== tid) {
+        const si = S.goals.findIndex(g=>g.id===dragGoalId);
+        const ti = S.goals.findIndex(g=>g.id===tid);
+        if (si!==-1&&ti!==-1) {
+          const exp = getExpanded();
+          const [m] = S.goals.splice(si,1);
+          S.goals.splice(ti,0,m);
+          render(); restoreExpanded(exp);
+        }
+      }
+    });
+  });
+}
+
+function setupCardDrag() {
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      e.stopPropagation();
+      dragCardId = card.dataset.projectId; dragGoalId = null;
+      setTimeout(() => card.classList.add('card-dragging'), 0);
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('card-dragging');
+      document.querySelectorAll('.kanban-cards').forEach(c=>c.classList.remove('drag-over-col'));
+      document.querySelectorAll('.project-card').forEach(c=>c.classList.remove('card-drag-over'));
+    });
+    card.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); card.classList.add('card-drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('card-drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault(); e.stopPropagation(); card.classList.remove('card-drag-over');
+      if (dragCardId && card.dataset.projectId && dragCardId !== card.dataset.projectId) {
+        const si = S.projects.findIndex(p=>p.id===dragCardId);
+        const ti = S.projects.findIndex(p=>p.id===card.dataset.projectId);
+        if (si!==-1&&ti!==-1) {
+          S.projects[si].status = S.projects[ti].status;
+          const [m] = S.projects.splice(si,1);
+          S.projects.splice(ti,0,m);
+          const exp = getExpanded(); render(); restoreExpanded(exp);
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('.kanban-cards').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over-col'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over-col'));
+    col.addEventListener('drop', e => {
+      e.preventDefault(); col.classList.remove('drag-over-col');
+      if (!dragCardId) return;
+      const ns = col.dataset.cardsStatus;
+      const proj = S.projects.find(p=>p.id===dragCardId);
+      if (proj && ns && proj.status !== ns) {
+        const wasArchived = proj.status === 'archived';
+        proj.status = ns;
+        // If archiving via drag-to-done column, handle ClickUp
+        if (ns === 'archived' && proj.cuListId) {
+          cuArchiveList(proj.cuListId).catch(()=>{});
+        }
+        const exp = getExpanded(); render(); restoreExpanded(exp);
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// VERTICAL MODAL
+// ═══════════════════════════════════════════════════════════
+function buildColorGrid() {
+  const el = document.getElementById('vColorGrid');
+  el.innerHTML = COLORS.map(c =>
+    `<div class="color-swatch ${selectedColor===c?'selected':''}" style="background:${c}" data-c="${c}"></div>`
+  ).join('');
+  el.querySelectorAll('.color-swatch').forEach(sw => {
+    sw.addEventListener('click', () => { selectedColor = sw.dataset.c; buildColorGrid(); });
+  });
+}
+
+function openVerticalModal(id=null) {
+  editingVerticalId = id;
+  const v = id ? S.verticals.find(x=>x.id===id) : null;
+  document.getElementById('vModalTitle').textContent = id ? 'Edit Vertical' : 'New Vertical';
+  document.getElementById('vName').value = v ? v.name : '';
+  document.getElementById('vCode').value = v ? v.code : '';
+  document.getElementById('vSpaceId').value = v ? (v.spaceId||'') : '';
+  document.getElementById('vSpaceStatus').textContent = '';
+  selectedColor = v ? v.color : COLORS[Math.floor(Math.random()*COLORS.length)];
+  buildColorGrid();
+  document.getElementById('verticalModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('vName').focus(), 50);
+}
+
+document.getElementById('addVerticalBtn').addEventListener('click', () => openVerticalModal());
+document.getElementById('vCancel').addEventListener('click', () => { document.getElementById('verticalModal').style.display = 'none'; });
+
+document.getElementById('vCode').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+});
+
+document.getElementById('vVerifySpace').addEventListener('click', async () => {
+  const spaceId = document.getElementById('vSpaceId').value.trim();
+  if (!spaceId) { toast('Enter a Space ID first', 'warn'); return; }
+  if (!cuConnected) { toast('ClickUp not connected', 'error'); return; }
+  const statusEl = document.getElementById('vSpaceStatus');
+  statusEl.textContent = 'Verifying…';
+  try {
+    const data = await cuVerifySpace(spaceId);
+    statusEl.textContent = `✓ Found: "${data.name}"`;
+    statusEl.style.color = 'var(--green)';
+  } catch(e) {
+    statusEl.textContent = `✗ Space not found or no access`;
+    statusEl.style.color = '#e06060';
+  }
+});
+
+document.getElementById('vSave').addEventListener('click', () => {
+  const name = document.getElementById('vName').value.trim();
+  const code = document.getElementById('vCode').value.trim().toUpperCase();
+  const spaceId = document.getElementById('vSpaceId').value.trim();
+  if (!name || !code) { toast('Name and code required', 'warn'); return; }
+  const conflict = S.verticals.find(v=>v.code===code&&v.id!==editingVerticalId);
+  if (conflict) { toast('Code already in use', 'warn'); return; }
+
+  if (editingVerticalId) {
+    const v = S.verticals.find(x=>x.id===editingVerticalId);
+    if (v) { v.name=name; v.code=code; v.color=selectedColor; v.spaceId=spaceId||null; }
+  } else {
+    S.verticals.push({ id:uid(), name, code, color:selectedColor, spaceId:spaceId||null });
+  }
+
+  document.getElementById('verticalModal').style.display = 'none';
+  render(); toast(editingVerticalId?'Vertical updated':'Vertical created', 'success');
+});
+
+// ═══════════════════════════════════════════════════════════
+// GOAL MODAL
+// ═══════════════════════════════════════════════════════════
+function openGoalModal(id=null) {
+  editingGoalId = id;
+  const g = id ? S.goals.find(x=>x.id===id) : null;
+  document.getElementById('gModalTitle').textContent = id ? 'Edit Goal' : 'New Goal';
+  document.getElementById('gName').value = g ? g.name : '';
+  document.getElementById('gType').value = g ? g.type : 'deliverable';
+  document.getElementById('gDate').value = g&&g.date ? g.date : '';
+  document.getElementById('gEndDate').value = g&&g.endDate ? g.endDate : '';
+  document.getElementById('gDesc').value = g ? (g.description||'') : '';
+  document.getElementById('gBoundaries').value = g ? (g.boundaries||'') : '';
+
+  const vSel = document.getElementById('gVertical');
+  vSel.innerHTML = '<option value="">— No Vertical —</option>' +
+    S.verticals.map(v=>`<option value="${v.id}" ${g&&g.verticalId===v.id?'selected':''}>${esc(v.name)}${!v.spaceId?' (no ClickUp)':''}</option>`).join('');
+  if (S.activeVerticalId && !id) vSel.value = S.activeVerticalId;
+
+  updateGoalCuSection();
+  updateGoalTypeUI();
+  document.getElementById('goalModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('gName').focus(), 50);
+}
+
+function updateGoalTypeUI() {
+  document.getElementById('gEndDateGroup').style.display =
+    document.getElementById('gType').value === 'timebox' ? '' : 'none';
+}
+
+function updateGoalCuSection() {
+  const vid = document.getElementById('gVertical').value;
+  const vert = vid ? S.verticals.find(v=>v.id===vid) : null;
+  const sec = document.getElementById('gCuSection');
+  const notice = document.getElementById('gCuNotice');
+  if (vert && vert.spaceId && cuConnected) {
+    sec.style.display = '';
+    notice.textContent = `Saving will create a Folder in the "${vert.name}" ClickUp Space.`;
+    notice.className = 'notice';
+  } else if (vert && !vert.spaceId) {
+    sec.style.display = '';
+    notice.textContent = `This Vertical has no ClickUp Space ID configured. Edit the Vertical to add one.`;
+    notice.className = 'notice warn';
+  } else {
+    sec.style.display = 'none';
+  }
+}
+
+document.getElementById('gType').addEventListener('change', updateGoalTypeUI);
+document.getElementById('gVertical').addEventListener('change', updateGoalCuSection);
+document.getElementById('addGoalBtn').addEventListener('click', () => openGoalModal());
+document.getElementById('pageAddGoalBtn').addEventListener('click', () => openGoalModal());
+document.getElementById('gCancel').addEventListener('click', () => { document.getElementById('goalModal').style.display = 'none'; });
+
+document.getElementById('gSave').addEventListener('click', async () => {
+  const name = document.getElementById('gName').value.trim();
+  if (!name) { toast('Goal name required', 'warn'); return; }
+
+  const vertId = document.getElementById('gVertical').value || null;
+  const vert = vertId ? S.verticals.find(v=>v.id===vertId) : null;
+
+  // Generate goal code: VERTCODE-100, 101...
+  let goalCode = null;
+  if (!editingGoalId && vert) {
+    const existing = S.goals.filter(g=>g.verticalId===vertId);
+    goalCode = `${vert.code}-${100 + existing.length}`;
+  } else if (editingGoalId) {
+    goalCode = S.goals.find(g=>g.id===editingGoalId)?.code || null;
+  }
+
+  const data = {
+    name, code: goalCode,
+    type: document.getElementById('gType').value,
+    verticalId: vertId,
+    date: document.getElementById('gDate').value || null,
+    endDate: document.getElementById('gEndDate').value || null,
+    description: document.getElementById('gDesc').value.trim(),
+    boundaries: document.getElementById('gBoundaries').value.trim(),
+  };
+
+  // ClickUp: create folder
+  let cuFolderId = editingGoalId ? S.goals.find(g=>g.id===editingGoalId)?.cuFolderId : null;
+  if (!editingGoalId && vert && vert.spaceId && cuConnected) {
+    document.getElementById('gSaveLabel').textContent = 'Creating in ClickUp…';
+    document.getElementById('gSaveSpinner').style.display = 'inline-block';
+    document.getElementById('gSave').disabled = true;
+    try {
+      const folderName = `${goalCode} ${name}`;
+      const folder = await cuCreateFolder(vert.spaceId, folderName);
+      cuFolderId = folder.id;
+      toast('Folder created in ClickUp ✓', 'success');
+    } catch(e) {
+      toast(`ClickUp folder failed: ${e.message}`, 'error');
+    }
+    document.getElementById('gSaveLabel').textContent = 'Save Goal';
+    document.getElementById('gSaveSpinner').style.display = 'none';
+    document.getElementById('gSave').disabled = false;
+  }
+
+  data.cuFolderId = cuFolderId;
+
+  if (editingGoalId) {
+    Object.assign(S.goals.find(g=>g.id===editingGoalId), data);
+  } else {
+    S.goals.push({ id:uid(), ...data });
+  }
+
+  document.getElementById('goalModal').style.display = 'none';
+  render();
+  toast(editingGoalId?'Goal updated':'Goal created', 'success');
+});
+
+// ═══════════════════════════════════════════════════════════
+// PROJECT MODAL
+// ═══════════════════════════════════════════════════════════
+function refreshProjectTypes(cur) {
+  const sel = document.getElementById('pType');
+  sel.innerHTML = '<option value="">— Select Type —</option>' +
+    S.types.map(t=>`<option value="${t}" ${cur===t?'selected':''}>${esc(t)}</option>`).join('');
+}
+
+function updateCodePreview() {
+  const gid = editingProjectGoalId || (editingProjectId ? S.projects.find(p=>p.id===editingProjectId)?.goalId : null);
+  const goal = gid ? S.goals.find(g=>g.id===gid) : null;
+  if (!goal) return;
+  const descriptor = document.getElementById('pDescriptor').value.trim();
+  if (editingProjectId) {
+    const ep = S.projects.find(p=>p.id===editingProjectId);
+    document.getElementById('pCodePreview').textContent = descriptor ? `${ep.codeBase} ${descriptor}` : ep.codeBase;
+  } else {
+    const ci = nextProjectCode(goal.verticalId);
+    if (ci) document.getElementById('pCodePreview').textContent = descriptor ? `${ci.base} ${descriptor}` : ci.base;
+  }
+}
+
+function openProjectModal(projectId=null, goalId=null) {
+  editingProjectId = projectId;
+  editingProjectGoalId = goalId;
+  const p = projectId ? S.projects.find(x=>x.id===projectId) : null;
+  document.getElementById('pModalTitle').textContent = projectId ? 'Edit Project' : 'New Project';
+  document.getElementById('pDescriptor').value = p ? (p.descriptor||'') : '';
+  document.getElementById('pName').value = p ? p.name : '';
+  document.getElementById('pDesc').value = p ? (p.description||'') : '';
+  document.getElementById('pStatus').value = p ? p.status : 'backlog';
+  refreshProjectTypes(p ? p.type : '');
+
+  const gid = goalId || (p ? p.goalId : null);
+  const goal = gid ? S.goals.find(g=>g.id===gid) : null;
+  const vert = goal ? S.verticals.find(v=>v.id===goal.verticalId) : null;
+
+  // ClickUp section
+  const sec = document.getElementById('pCuSection');
+  const notice = document.getElementById('pCuNotice');
+  if (!projectId && goal && goal.cuFolderId && cuConnected) {
+    sec.style.display = '';
+    notice.textContent = `Saving will create a List in the "${goal.code} ${goal.name}" ClickUp Folder.`;
+    notice.className = 'notice';
+  } else if (!projectId && goal && !goal.cuFolderId && vert && vert.spaceId) {
+    sec.style.display = '';
+    notice.textContent = `Parent goal has no ClickUp Folder yet. Re-save the goal first to create one.`;
+    notice.className = 'notice warn';
+  } else {
+    sec.style.display = 'none';
+  }
+
+  updateCodePreview();
+  document.getElementById('projectModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('pDescriptor').focus(), 50);
+}
+
+document.getElementById('pDescriptor').addEventListener('input', updateCodePreview);
+document.getElementById('pCancel').addEventListener('click', () => { document.getElementById('projectModal').style.display = 'none'; });
+
+document.getElementById('pSave').addEventListener('click', async () => {
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { toast('Project name required', 'warn'); return; }
+
+  const descriptor = document.getElementById('pDescriptor').value.trim();
+  const goalId = editingProjectId ? S.projects.find(p=>p.id===editingProjectId)?.goalId : editingProjectGoalId;
+  const goal = S.goals.find(g=>g.id===goalId);
+
+  let codeBase, codePrefix, fullCode;
+  if (editingProjectId) {
+    const ep = S.projects.find(p=>p.id===editingProjectId);
+    codeBase = ep.codeBase; codePrefix = ep.codePrefix;
+  } else {
+    const ci = nextProjectCode(goal.verticalId);
+    codeBase = ci.base; codePrefix = ci.prefix;
+  }
+  fullCode = descriptor ? `${codeBase} ${descriptor}` : codeBase;
+
+  const data = { goalId, codeBase, codePrefix, fullCode, descriptor, name,
+    description: document.getElementById('pDesc').value.trim(),
+    type: document.getElementById('pType').value,
+    status: document.getElementById('pStatus').value,
+  };
+
+  // Handle status change to archived
+  if (editingProjectId) {
+    const ep = S.projects.find(p=>p.id===editingProjectId);
+    if (data.status === 'archived' && ep.status !== 'archived' && ep.cuListId) {
+      try {
+        await cuArchiveList(ep.cuListId);
+        toast('List archived in ClickUp ✓', 'success');
+      } catch(e) {
+        toast(`ClickUp archive failed: ${e.message}`, 'warn');
+      }
+    }
+    data.cuListId = ep.cuListId;
+  } else {
+    // New project: create ClickUp list
+    let cuListId = null;
+    if (goal && goal.cuFolderId && cuConnected) {
+      document.getElementById('pSaveLabel').textContent = 'Creating in ClickUp…';
+      document.getElementById('pSaveSpinner').style.display = 'inline-block';
+      document.getElementById('pSave').disabled = true;
+      try {
+        const list = await cuCreateList(goal.cuFolderId, fullCode);
+        cuListId = list.id;
+        toast('List created in ClickUp ✓', 'success');
+      } catch(e) {
+        toast(`ClickUp list failed: ${e.message}`, 'error');
+      }
+      document.getElementById('pSaveLabel').textContent = 'Save Project';
+      document.getElementById('pSaveSpinner').style.display = 'none';
+      document.getElementById('pSave').disabled = false;
+    }
+    data.cuListId = cuListId;
+  }
+
+  if (editingProjectId) {
+    Object.assign(S.projects.find(p=>p.id===editingProjectId), data);
+  } else {
+    S.projects.push({ id:uid(), ...data });
+  }
+
+  const exp = getExpanded();
+  if (!editingProjectId) exp.push(goalId);
+  document.getElementById('projectModal').style.display = 'none';
+  render(); restoreExpanded(exp);
+  toast(editingProjectId?'Project updated':'Project created', 'success');
+});
+
+// ═══════════════════════════════════════════════════════════
+// TYPES MANAGER
+// ═══════════════════════════════════════════════════════════
+function renderTypesList() {
+  const el = document.getElementById('typesList');
+  el.innerHTML = `<div class="type-list">${S.types.map((t,i)=>
+    `<div class="type-row"><span>${esc(t)}</span><button data-del-type="${i}">Remove</button></div>`
+  ).join('')}</div>`;
+  el.querySelectorAll('[data-del-type]').forEach(b => {
+    b.addEventListener('click', () => { S.types.splice(+b.dataset.delType,1); save(); renderTypesList(); });
+  });
+}
+
+document.getElementById('manageTypesBtn').addEventListener('click', () => {
+  renderTypesList();
+  document.getElementById('typesModal').style.display = 'flex';
+});
+
+document.getElementById('addTypeBtn').addEventListener('click', () => {
+  const val = document.getElementById('newTypeName').value.trim();
+  if (!val) return;
+  if (!S.types.includes(val)) { S.types.push(val); save(); renderTypesList(); }
+  document.getElementById('newTypeName').value = '';
+});
+
+document.getElementById('typesClose').addEventListener('click', () => {
+  document.getElementById('typesModal').style.display = 'none';
+  render();
+});
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════
+document.getElementById('exportBtn').addEventListener('click', () => {
+  generateExport();
+  document.getElementById('exportModal').style.display = 'flex';
+});
+
+document.getElementById('exportFormat').addEventListener('change', generateExport);
+document.getElementById('exportClose').addEventListener('click', () => { document.getElementById('exportModal').style.display = 'none'; });
+document.getElementById('exportCopy').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('exportPre').textContent);
+  toast('Copied ✓', 'success');
+});
+
+function generateExport() {
+  const fmt = document.getElementById('exportFormat').value;
+  const goals = filteredGoals();
+  let out = '';
+  if (fmt === 'text') {
+    out = `PROJECTOPS — STRATEGIC LANDSCAPE\n${'─'.repeat(60)}\n\n`;
+    goals.forEach((g,i) => {
+      const v = S.verticals.find(x=>x.id===g.verticalId);
+      const ps = S.projects.filter(p=>p.goalId===g.id&&p.status!=='archived');
+      out += `#${i+1}  ${(g.code?g.code+' ':'')}${g.name.toUpperCase()}\n`;
+      out += `    ${g.type==='deliverable'?'Deliverable':'Time-boxed'}`;
+      if (g.date) out += ` · ${fmtDate(g.date)}`;
+      if (v) out += ` · ${v.name} [${v.code}]`;
+      out += '\n';
+      if (g.description) out += `    Scope: ${g.description}\n`;
+      if (g.boundaries) out += `    Boundaries: ${g.boundaries}\n`;
+      ps.forEach(p => {
+        out += `    ○ ${p.fullCode}  ${p.name}  [${STATUS_LABELS[p.status]}]\n`;
+        if (p.description) out += `      ${p.description}\n`;
+      });
+      out += '\n';
+    });
+  } else if (fmt === 'markdown') {
+    out = `# ProjectOPS — Strategic Landscape\n\n`;
+    goals.forEach((g,i) => {
+      const v = S.verticals.find(x=>x.id===g.verticalId);
+      const ps = S.projects.filter(p=>p.goalId===g.id);
+      out += `## ${i+1}. ${g.code?'`'+g.code+'` ':''} ${g.name}\n\n`;
+      const meta = [g.type==='deliverable'?'Deliverable':'Time-boxed'];
+      if (g.date) meta.push(`Target: ${fmtDate(g.date)}`);
+      if (v) meta.push(`Vertical: ${v.name} \`${v.code}\``);
+      out += meta.join(' · ') + '\n\n';
+      if (g.description) out += `**Scope:** ${g.description}\n\n`;
+      if (g.boundaries) out += `**Boundaries:** ${g.boundaries}\n\n`;
+      if (ps.length) {
+        out += `| Code | Name | Type | Status |\n|------|------|------|--------|\n`;
+        ps.forEach(p => out += `| \`${p.fullCode}\` | ${p.name} | ${p.type||'—'} | ${STATUS_LABELS[p.status]} |\n`);
+        out += '\n';
+      }
+    });
+  } else {
+    out = 'Priority,Vertical,Code,Goal,Goal Code,Type,Target,Project Code,Project Name,Type,Status,Notes\n';
+    goals.forEach((g,i) => {
+      const v = S.verticals.find(x=>x.id===g.verticalId);
+      const ps = S.projects.filter(p=>p.goalId===g.id);
+      if (!ps.length) {
+        out += `${i+1},"${v?v.name:''}","${v?v.code:''}","${g.name}","${g.code||''}","${g.type}","${g.date||''}","","","","",""\n`;
+      } else {
+        ps.forEach(p => out += `${i+1},"${v?v.name:''}","${v?v.code:''}","${g.name}","${g.code||''}","${g.type}","${g.date||''}","${p.fullCode}","${p.name}","${p.type||''}","${p.status}","${p.description||''}"\n`);
+      }
+    });
+  }
+  document.getElementById('exportPre').textContent = out;
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+function toast(msg, type='') {
+  document.querySelector('.toast')?.remove();
+  const el = document.createElement('div');
+  el.className = `toast${type?' '+type:''}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+['verticalModal','goalModal','projectModal','typesModal','exportModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    ['verticalModal','goalModal','projectModal','typesModal','exportModal'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// SEED DATA
+// ═══════════════════════════════════════════════════════════
+function seed() {
+  const v1=uid(), v2=uid(), v3=uid();
+  const g1=uid(), g2=uid(), g3=uid();
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const ww = String(isoWeek(now)).padStart(2,'0');
+  S.verticals = [
+    { id:v1, name:'Personal', code:'SELF', color:'#4a7fa5', spaceId:null },
+    { id:v2, name:'Acme Corp', code:'ACME', color:'#c0392b', spaceId:null },
+    { id:v3, name:'Beta LLC', code:'BETA', color:'#c8a84b', spaceId:null },
+  ];
+  S.goals = [
+    { id:g1, name:'Q2 Website Overhaul', code:'ACME-100', type:'deliverable', verticalId:v2, date:'2026-06-30',
+      description:'Full redesign and rebuild of acmecorp.com including all product pages, blog, and contact flow.',
+      boundaries:'Does not include backend API changes, CRM integration, or ad campaign setup.', cuFolderId:null },
+    { id:g2, name:'April Operations Sprint', code:'BETA-100', type:'timebox', verticalId:v3, date:'2026-04-01', endDate:'2026-04-30',
+      description:'A focused four-week push to systematize internal ops: SOPs, tooling, and onboarding.',
+      boundaries:'Limited to internal-facing workflows only. No client deliverables this sprint.', cuFolderId:null },
+    { id:g3, name:'Personal Brand Launch', code:'SELF-100', type:'deliverable', verticalId:v1, date:'2026-07-15',
+      description:'Launch personal site, newsletter, and LinkedIn presence as a thought-leadership platform.',
+      boundaries:'MVP only — no podcast, no course, no paid offers in this phase.', cuFolderId:null },
+  ];
+  S.projects = [
+    { id:uid(), goalId:g1, codeBase:`ACME-${yy}${ww}A`, codePrefix:`ACME-${yy}${ww}`, fullCode:`ACME-${yy}${ww}A Audit`, descriptor:'Audit', name:'Content & UX Audit', type:'Research', status:'done', description:'Completed full audit of site structure, content gaps, and UX friction points.', cuListId:null },
+    { id:uid(), goalId:g1, codeBase:`ACME-${yy}${ww}B`, codePrefix:`ACME-${yy}${ww}`, fullCode:`ACME-${yy}${ww}B Design`, descriptor:'Design', name:'Design System Build', type:'Design', status:'progress', description:'Building component library in Figma. On track for handoff end of month.', cuListId:null },
+    { id:uid(), goalId:g1, codeBase:`ACME-${yy}${ww}C`, codePrefix:`ACME-${yy}${ww}`, fullCode:`ACME-${yy}${ww}C Dev`, descriptor:'Dev', name:'Development Handoff', type:'Development', status:'backlog', description:'Awaiting design sign-off before dev kickoff.', cuListId:null },
+    { id:uid(), goalId:g2, codeBase:`BETA-${yy}${ww}A`, codePrefix:`BETA-${yy}${ww}`, fullCode:`BETA-${yy}${ww}A SOPs`, descriptor:'SOPs', name:'SOPs Documentation', type:'Operations', status:'progress', description:'Writing SOPs for onboarding, support, and billing workflows.', cuListId:null },
+    { id:uid(), goalId:g2, codeBase:`BETA-${yy}${ww}B`, codePrefix:`BETA-${yy}${ww}`, fullCode:`BETA-${yy}${ww}B CRM`, descriptor:'CRM', name:'CRM Migration', type:'Operations', status:'blocked', description:'Waiting on data export from legacy system. Escalated to client IT.', cuListId:null },
+    { id:uid(), goalId:g3, codeBase:`SELF-${yy}${ww}A`, codePrefix:`SELF-${yy}${ww}`, fullCode:`SELF-${yy}${ww}A Site`, descriptor:'Site', name:'Personal Website MVP', type:'Development', status:'backlog', description:'Single-page site with bio, selected work, and contact form.', cuListId:null },
+  ];
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+load();
+if (!S.verticals.length && !S.goals.length) seed();
+render();
+checkCuConnection();
+</script>
+</body>
+</html>
