@@ -774,53 +774,43 @@ Blockers: None
 
 ## Project Overview
 
-<!-- Brief description of what this project does -->
+ProjectOPS is a strategic project management layer that sits above task managers like ClickUp. It organizes work into three tiers — Verticals (clients/contexts) → Goals (objectives with scope and boundaries) → Projects (tracked work items). It provides an executive-level portfolio view without task-level detail, with direct ClickUp integration that auto-creates Folders and Lists as you plan.
+
+Currently a static HTML file with localStorage — migrating to a real backend for persistence, multi-device access, and small team sharing.
 
 ## Technology Stack
 
-<!-- Example:
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
-| Database | Supabase |
-| Auth | Clerk |
-| Deployment | Vercel |
-| UI Components | shadcn/ui |
-| Icons | Lucide React |
--->
+| Frontend | Vanilla HTML/CSS/JS (single page, no framework) |
+| Backend | Vercel Serverless Functions (Node.js) |
+| Database | NeonDB (serverless Postgres) |
+| Auth | Clerk (invite-only, email + password) |
+| Hosting | Vercel |
+| Integration | ClickUp REST API (proxied through serverless function) |
 
 ## Project Structure
 
-<!-- Example:
 ```
-src/
-├── app/           # Next.js app router pages
-├── components/    # Reusable React components
-├── lib/           # Utility libraries
-├── hooks/         # Custom React hooks
-├── types/         # TypeScript type definitions
-├── services/      # Business logic services
-└── utils/         # Utility functions
+/
+├── public/            # Static frontend assets (HTML, CSS, JS)
+├── api/               # Vercel Serverless Functions (Node.js)
+├── docs/              # PACT framework documentation
+├── sandbox/           # Static HTML mockups (/design command output)
+├── vercel.json        # Vercel routing and function config
+└── .env.local         # Environment variables (not committed)
 ```
--->
 
 ## Development Commands
 
-<!-- Example:
 | Command | Purpose |
 |---------|---------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run type-check` | TypeScript verification |
-| `npm run lint` | ESLint check |
-| `npm run test` | Run tests |
--->
+| `vercel dev` | Start local dev server with serverless functions |
+| `vercel build` | Build for production |
+| `vercel --prod` | Deploy to production |
 
 ## Quick Recovery Commands
 
-<!-- Example:
 ```bash
 # Kill stuck port
 lsof -ti:3000 | xargs kill -9
@@ -829,24 +819,24 @@ lsof -ti:3000 | xargs kill -9
 git status && git log -3 --oneline
 
 # Full verification
-npm run type-check && npm run build
+vercel build
 ```
--->
 
 ## MCP Tool Capabilities
 
 | MCP Server | Tools | When to Use |
 |------------|-------|-------------|
 | **Cognee** | `cognify`, `search`, `cognify_status`, `list_data`, `delete`, `prune` | Knowledge graph — store and retrieve architecture decisions, debugging insights, project context. Query at session start and commit after significant decisions. Shared with Claude Desktop. |
-
-<!-- Add additional MCP servers your project uses. Example:
-| **Supabase** | `apply_migration`, `execute_sql`, `list_tables` | Database operations |
-| **Linear** | Issue management tools | Create/update tickets |
--->
+| **Linear** | Issue management tools | Create/update tickets, track epics and sprints |
 
 ## Environment Variables
 
-<!-- List required environment variables and their purpose -->
+| Variable | Purpose |
+|----------|---------|
+| `NEON_DATABASE_URL` | NeonDB Postgres connection string |
+| `CLERK_PUBLISHABLE_KEY` | Clerk frontend auth key |
+| `CLERK_SECRET_KEY` | Clerk backend auth key |
+| `CLICKUP_API_TOKEN` | ClickUp REST API token for integration |
 
 ---
 

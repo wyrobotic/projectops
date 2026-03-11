@@ -1,0 +1,10 @@
+{
+  "name": "projectops",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@clerk/backend": "^1",
+    "@neondatabase/serverless": "^0.10"
+  }
+}

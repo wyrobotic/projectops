@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProjectOPS</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_Zm9uZC10cmVlZnJvZy0xMS5jbGVyay5hY2NvdW50cy5kZXYk"
+  src="https://fond-treefrog-11.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript"
+></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -786,9 +793,60 @@ header {
   .kanban-board { grid-template-columns: repeat(2,1fr); }
   .content { padding: 16px; }
 }
+
+/* ── AUTH WALL ───────────────────────────────────────────── */
+#auth-wall {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+#app { display: none; }
+
+/* ── LOADING STATE ───────────────────────────────────────── */
+#app-loading {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--bg);
+}
+
+.loading-spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.loading-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+}
 </style>
 </head>
 <body>
+
+<!-- Loading state (shown until Clerk + data ready) -->
+<div id="app-loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading…</div>
+</div>
+
+<!-- Auth wall (shown if not signed in) -->
+<div id="auth-wall">
+  <div id="sign-in-container"></div>
+</div>
+
+<!-- Main app (shown when signed in and data loaded) -->
+<div id="app">
 
 <header>
   <div class="logo">
@@ -803,6 +861,7 @@ header {
     <button class="btn btn-ghost btn-sm" id="manageTypesBtn">⚙ Types</button>
     <button class="btn btn-ghost btn-sm" id="exportBtn">↓ Export</button>
     <button class="btn btn-primary btn-sm" id="addGoalBtn">+ Goal</button>
+    <div id="clerk-user-btn"></div>
   </div>
 </header>
 
@@ -1017,6 +1076,8 @@ header {
   </div>
 </div>
 
+</div><!-- /#app -->
+
 <script>
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS
@@ -1033,13 +1094,41 @@ const KANBAN_COLS = ['backlog','progress','blocked','done'];
 const STATUS_LABELS = { backlog:'Backlog', progress:'In Progress', blocked:'Blocked', done:'Done', archived:'Archived' };
 
 // ═══════════════════════════════════════════════════════════
+// AUTH + API
+// ═══════════════════════════════════════════════════════════
+
+async function apiFetch(method, path, body = null) {
+  const token = await window.Clerk.session.getToken();
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  };
+  if (body !== null) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  if (res.status === 401) {
+    await window.Clerk.signOut();
+    location.reload();
+    return null;
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
+// S.types stores {id, name} objects (from /api/project-types)
 let S = {
   verticals: [],
   goals: [],
   projects: [],
-  types: ['Strategy','Design','Development','Content','Operations','Research'],
+  types: [],
   activeVerticalId: null
 };
 
@@ -1050,15 +1139,6 @@ let editingProjectGoalId = null;
 let selectedColor = COLORS[0];
 let showArchived = {};
 
-function load() {
-  try {
-    const d = localStorage.getItem('projectops_v3');
-    if (d) S = { ...S, ...JSON.parse(d) };
-  } catch(e) {}
-  ['verticals','goals','projects','types'].forEach(k => { if (!S[k]) S[k] = []; });
-}
-
-function save() { localStorage.setItem('projectops_v3', JSON.stringify(S)); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
 // ═══════════════════════════════════════════════════════════
@@ -1090,21 +1170,6 @@ async function checkCuConnection() {
     document.getElementById('cuDot').className = 'cu-dot error';
     document.getElementById('cuStatusText').textContent = 'ClickUp ✗';
   }
-}
-
-// Create folder in a space
-async function cuCreateFolder(spaceId, name) {
-  return await cuCall('POST', `/space/${spaceId}/folder`, { name });
-}
-
-// Create list in a folder
-async function cuCreateList(folderId, name) {
-  return await cuCall('POST', `/folder/${folderId}/list`, { name });
-}
-
-// Archive a list
-async function cuArchiveList(listId) {
-  return await cuCall('PUT', `/list/${listId}`, { archived: true });
 }
 
 // Verify a space exists
@@ -1159,7 +1224,6 @@ function esc(s) {
 function render() {
   renderSidebar();
   renderContent();
-  save();
 }
 
 function renderSidebar() {
@@ -1346,14 +1410,19 @@ function bindGoalEvents(el) {
   });
 
   el.querySelectorAll('[data-del-goal]').forEach(b => {
-    b.addEventListener('click', e => {
+    b.addEventListener('click', async e => {
       e.stopPropagation();
       const id = b.dataset.delGoal;
       const pc = S.projects.filter(p=>p.goalId===id).length;
       if (confirm(`Delete this goal${pc?' and its '+pc+' project(s)':''}?`)) {
-        S.goals = S.goals.filter(g=>g.id!==id);
-        S.projects = S.projects.filter(p=>p.goalId!==id);
-        render(); toast('Goal deleted');
+        try {
+          await apiFetch('DELETE', `/api/goals?id=${id}`);
+          S.goals = S.goals.filter(g=>g.id!==id);
+          S.projects = S.projects.filter(p=>p.goalId!==id);
+          render(); toast('Goal deleted');
+        } catch(e) {
+          toast(`Failed to delete goal: ${e.message}`, 'error');
+        }
       }
     });
   });
@@ -1367,11 +1436,17 @@ function bindGoalEvents(el) {
   });
 
   el.querySelectorAll('[data-del-project]').forEach(b => {
-    b.addEventListener('click', e => {
+    b.addEventListener('click', async e => {
       e.stopPropagation();
+      const id = b.dataset.delProject;
       if (confirm('Delete this project?')) {
-        S.projects = S.projects.filter(p=>p.id!==b.dataset.delProject);
-        render(); toast('Project deleted');
+        try {
+          await apiFetch('DELETE', `/api/projects?id=${id}`);
+          S.projects = S.projects.filter(p=>p.id!==id);
+          render(); toast('Project deleted');
+        } catch(e) {
+          toast(`Failed to delete project: ${e.message}`, 'error');
+        }
       }
     });
   });
@@ -1420,7 +1495,7 @@ function setupGoalDrag() {
     });
     card.addEventListener('dragover', e => { if(dragCardId) return; e.preventDefault(); card.classList.add('drag-over'); });
     card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-    card.addEventListener('drop', e => {
+    card.addEventListener('drop', async e => {
       if (dragCardId) return;
       e.preventDefault(); card.classList.remove('drag-over');
       const tid = card.dataset.goalId;
@@ -1432,6 +1507,8 @@ function setupGoalDrag() {
           const [m] = S.goals.splice(si,1);
           S.goals.splice(ti,0,m);
           render(); restoreExpanded(exp);
+          apiFetch('PUT', '/api/goals?action=reorder', { ids: S.goals.map(g=>g.id) })
+            .catch(() => toast('Reorder sync failed — refresh to restore', 'warn'));
         }
       }
     });
@@ -1452,16 +1529,28 @@ function setupCardDrag() {
     });
     card.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); card.classList.add('card-drag-over'); });
     card.addEventListener('dragleave', () => card.classList.remove('card-drag-over'));
-    card.addEventListener('drop', e => {
+    card.addEventListener('drop', async e => {
       e.preventDefault(); e.stopPropagation(); card.classList.remove('card-drag-over');
       if (dragCardId && card.dataset.projectId && dragCardId !== card.dataset.projectId) {
         const si = S.projects.findIndex(p=>p.id===dragCardId);
         const ti = S.projects.findIndex(p=>p.id===card.dataset.projectId);
         if (si!==-1&&ti!==-1) {
-          S.projects[si].status = S.projects[ti].status;
+          const newStatus = S.projects[ti].status;
+          S.projects[si].status = newStatus;
           const [m] = S.projects.splice(si,1);
           S.projects.splice(ti,0,m);
           const exp = getExpanded(); render(); restoreExpanded(exp);
+          if (newStatus === 'archived') {
+            apiFetch('PUT', `/api/projects?id=${m.id}`, { status: 'archived' })
+              .then(updated => { if (updated) { const idx = S.projects.findIndex(p=>p.id===updated.id); if (idx!==-1) S.projects[idx]=updated; } })
+              .catch(() => toast('Sync failed — refresh to restore', 'warn'));
+          } else {
+            const goalId = m.goalId;
+            const goalProjects = S.projects.filter(p=>p.goalId===goalId);
+            apiFetch('PUT', '/api/projects?action=reorder', {
+              updates: goalProjects.map((p,i) => ({ id: p.id, status: p.status, sortOrder: i }))
+            }).catch(() => toast('Reorder sync failed — refresh to restore', 'warn'));
+          }
         }
       }
     });
@@ -1470,19 +1559,26 @@ function setupCardDrag() {
   document.querySelectorAll('.kanban-cards').forEach(col => {
     col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over-col'); });
     col.addEventListener('dragleave', () => col.classList.remove('drag-over-col'));
-    col.addEventListener('drop', e => {
+    col.addEventListener('drop', async e => {
       e.preventDefault(); col.classList.remove('drag-over-col');
       if (!dragCardId) return;
       const ns = col.dataset.cardsStatus;
       const proj = S.projects.find(p=>p.id===dragCardId);
       if (proj && ns && proj.status !== ns) {
-        const wasArchived = proj.status === 'archived';
+        const oldStatus = proj.status;
         proj.status = ns;
-        // If archiving via drag-to-done column, handle ClickUp
-        if (ns === 'archived' && proj.cuListId) {
-          cuArchiveList(proj.cuListId).catch(()=>{});
-        }
         const exp = getExpanded(); render(); restoreExpanded(exp);
+        if (ns === 'archived') {
+          // Use single-item PUT so server handles ClickUp archive side-effect
+          apiFetch('PUT', `/api/projects?id=${proj.id}`, { status: 'archived' })
+            .then(updated => { if (updated) { const idx = S.projects.findIndex(p=>p.id===updated.id); if (idx!==-1) S.projects[idx]=updated; } })
+            .catch(() => { proj.status = oldStatus; toast('Sync failed — refresh to restore', 'warn'); });
+        } else {
+          const goalProjects = S.projects.filter(p=>p.goalId===proj.goalId);
+          apiFetch('PUT', '/api/projects?action=reorder', {
+            updates: goalProjects.map((p,i) => ({ id: p.id, status: p.status, sortOrder: i }))
+          }).catch(() => toast('Reorder sync failed — refresh to restore', 'warn'));
+        }
       }
     });
   });
@@ -1538,23 +1634,36 @@ document.getElementById('vVerifySpace').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('vSave').addEventListener('click', () => {
+document.getElementById('vSave').addEventListener('click', async () => {
   const name = document.getElementById('vName').value.trim();
   const code = document.getElementById('vCode').value.trim().toUpperCase();
   const spaceId = document.getElementById('vSpaceId').value.trim();
   if (!name || !code) { toast('Name and code required', 'warn'); return; }
-  const conflict = S.verticals.find(v=>v.code===code&&v.id!==editingVerticalId);
-  if (conflict) { toast('Code already in use', 'warn'); return; }
 
-  if (editingVerticalId) {
-    const v = S.verticals.find(x=>x.id===editingVerticalId);
-    if (v) { v.name=name; v.code=code; v.color=selectedColor; v.spaceId=spaceId||null; }
-  } else {
-    S.verticals.push({ id:uid(), name, code, color:selectedColor, spaceId:spaceId||null });
+  const btn = document.getElementById('vSave');
+  btn.disabled = true;
+  try {
+    if (editingVerticalId) {
+      const result = await apiFetch('PUT', `/api/verticals?id=${editingVerticalId}`, {
+        name, code, color: selectedColor, spaceId: spaceId || null
+      });
+      if (!result) return;
+      const idx = S.verticals.findIndex(v=>v.id===editingVerticalId);
+      if (idx !== -1) S.verticals[idx] = result;
+    } else {
+      const result = await apiFetch('POST', '/api/verticals', {
+        name, code, color: selectedColor, spaceId: spaceId || null
+      });
+      if (!result) return;
+      S.verticals.push(result);
+    }
+    document.getElementById('verticalModal').style.display = 'none';
+    render(); toast(editingVerticalId?'Vertical updated':'Vertical created', 'success');
+  } catch(e) {
+    toast(`Failed to save vertical: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
   }
-
-  document.getElementById('verticalModal').style.display = 'none';
-  render(); toast(editingVerticalId?'Vertical updated':'Vertical created', 'success');
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -1616,19 +1725,9 @@ document.getElementById('gSave').addEventListener('click', async () => {
   if (!name) { toast('Goal name required', 'warn'); return; }
 
   const vertId = document.getElementById('gVertical').value || null;
-  const vert = vertId ? S.verticals.find(v=>v.id===vertId) : null;
-
-  // Generate goal code: VERTCODE-100, 101...
-  let goalCode = null;
-  if (!editingGoalId && vert) {
-    const existing = S.goals.filter(g=>g.verticalId===vertId);
-    goalCode = `${vert.code}-${100 + existing.length}`;
-  } else if (editingGoalId) {
-    goalCode = S.goals.find(g=>g.id===editingGoalId)?.code || null;
-  }
 
   const data = {
-    name, code: goalCode,
+    name,
     type: document.getElementById('gType').value,
     verticalId: vertId,
     date: document.getElementById('gDate').value || null,
@@ -1637,36 +1736,31 @@ document.getElementById('gSave').addEventListener('click', async () => {
     boundaries: document.getElementById('gBoundaries').value.trim(),
   };
 
-  // ClickUp: create folder
-  let cuFolderId = editingGoalId ? S.goals.find(g=>g.id===editingGoalId)?.cuFolderId : null;
-  if (!editingGoalId && vert && vert.spaceId && cuConnected) {
-    document.getElementById('gSaveLabel').textContent = 'Creating in ClickUp…';
-    document.getElementById('gSaveSpinner').style.display = 'inline-block';
-    document.getElementById('gSave').disabled = true;
-    try {
-      const folderName = `${goalCode} ${name}`;
-      const folder = await cuCreateFolder(vert.spaceId, folderName);
-      cuFolderId = folder.id;
-      toast('Folder created in ClickUp ✓', 'success');
-    } catch(e) {
-      toast(`ClickUp folder failed: ${e.message}`, 'error');
+  document.getElementById('gSaveLabel').textContent = 'Saving…';
+  document.getElementById('gSaveSpinner').style.display = 'inline-block';
+  document.getElementById('gSave').disabled = true;
+
+  try {
+    if (editingGoalId) {
+      const result = await apiFetch('PUT', `/api/goals?id=${editingGoalId}`, data);
+      if (!result) return;
+      const idx = S.goals.findIndex(g=>g.id===editingGoalId);
+      if (idx !== -1) S.goals[idx] = result;
+    } else {
+      const result = await apiFetch('POST', '/api/goals', data);
+      if (!result) return;
+      S.goals.push(result);
     }
+    document.getElementById('goalModal').style.display = 'none';
+    render();
+    toast(editingGoalId?'Goal updated':'Goal created', 'success');
+  } catch(e) {
+    toast(`Failed to save goal: ${e.message}`, 'error');
+  } finally {
     document.getElementById('gSaveLabel').textContent = 'Save Goal';
     document.getElementById('gSaveSpinner').style.display = 'none';
     document.getElementById('gSave').disabled = false;
   }
-
-  data.cuFolderId = cuFolderId;
-
-  if (editingGoalId) {
-    Object.assign(S.goals.find(g=>g.id===editingGoalId), data);
-  } else {
-    S.goals.push({ id:uid(), ...data });
-  }
-
-  document.getElementById('goalModal').style.display = 'none';
-  render();
-  toast(editingGoalId?'Goal updated':'Goal created', 'success');
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -1675,7 +1769,7 @@ document.getElementById('gSave').addEventListener('click', async () => {
 function refreshProjectTypes(cur) {
   const sel = document.getElementById('pType');
   sel.innerHTML = '<option value="">— Select Type —</option>' +
-    S.types.map(t=>`<option value="${t}" ${cur===t?'selected':''}>${esc(t)}</option>`).join('');
+    S.types.map(t=>`<option value="${t.name}" ${cur===t.name?'selected':''}>${esc(t.name)}</option>`).join('');
 }
 
 function updateCodePreview() {
@@ -1736,68 +1830,43 @@ document.getElementById('pSave').addEventListener('click', async () => {
 
   const descriptor = document.getElementById('pDescriptor').value.trim();
   const goalId = editingProjectId ? S.projects.find(p=>p.id===editingProjectId)?.goalId : editingProjectGoalId;
-  const goal = S.goals.find(g=>g.id===goalId);
 
-  let codeBase, codePrefix, fullCode;
-  if (editingProjectId) {
-    const ep = S.projects.find(p=>p.id===editingProjectId);
-    codeBase = ep.codeBase; codePrefix = ep.codePrefix;
-  } else {
-    const ci = nextProjectCode(goal.verticalId);
-    codeBase = ci.base; codePrefix = ci.prefix;
-  }
-  fullCode = descriptor ? `${codeBase} ${descriptor}` : codeBase;
-
-  const data = { goalId, codeBase, codePrefix, fullCode, descriptor, name,
+  const data = {
+    goalId,
+    descriptor,
+    name,
     description: document.getElementById('pDesc').value.trim(),
     type: document.getElementById('pType').value,
     status: document.getElementById('pStatus').value,
   };
 
-  // Handle status change to archived
-  if (editingProjectId) {
-    const ep = S.projects.find(p=>p.id===editingProjectId);
-    if (data.status === 'archived' && ep.status !== 'archived' && ep.cuListId) {
-      try {
-        await cuArchiveList(ep.cuListId);
-        toast('List archived in ClickUp ✓', 'success');
-      } catch(e) {
-        toast(`ClickUp archive failed: ${e.message}`, 'warn');
-      }
-    }
-    data.cuListId = ep.cuListId;
-  } else {
-    // New project: create ClickUp list
-    let cuListId = null;
-    if (goal && goal.cuFolderId && cuConnected) {
-      document.getElementById('pSaveLabel').textContent = 'Creating in ClickUp…';
-      document.getElementById('pSaveSpinner').style.display = 'inline-block';
-      document.getElementById('pSave').disabled = true;
-      try {
-        const list = await cuCreateList(goal.cuFolderId, fullCode);
-        cuListId = list.id;
-        toast('List created in ClickUp ✓', 'success');
-      } catch(e) {
-        toast(`ClickUp list failed: ${e.message}`, 'error');
-      }
-      document.getElementById('pSaveLabel').textContent = 'Save Project';
-      document.getElementById('pSaveSpinner').style.display = 'none';
-      document.getElementById('pSave').disabled = false;
-    }
-    data.cuListId = cuListId;
-  }
+  document.getElementById('pSaveLabel').textContent = 'Saving…';
+  document.getElementById('pSaveSpinner').style.display = 'inline-block';
+  document.getElementById('pSave').disabled = true;
 
-  if (editingProjectId) {
-    Object.assign(S.projects.find(p=>p.id===editingProjectId), data);
-  } else {
-    S.projects.push({ id:uid(), ...data });
+  try {
+    const exp = getExpanded();
+    if (editingProjectId) {
+      const result = await apiFetch('PUT', `/api/projects?id=${editingProjectId}`, data);
+      if (!result) return;
+      const idx = S.projects.findIndex(p=>p.id===editingProjectId);
+      if (idx !== -1) S.projects[idx] = result;
+    } else {
+      const result = await apiFetch('POST', '/api/projects', data);
+      if (!result) return;
+      S.projects.push(result);
+      exp.push(goalId);
+    }
+    document.getElementById('projectModal').style.display = 'none';
+    render(); restoreExpanded(exp);
+    toast(editingProjectId?'Project updated':'Project created', 'success');
+  } catch(e) {
+    toast(`Failed to save project: ${e.message}`, 'error');
+  } finally {
+    document.getElementById('pSaveLabel').textContent = 'Save Project';
+    document.getElementById('pSaveSpinner').style.display = 'none';
+    document.getElementById('pSave').disabled = false;
   }
-
-  const exp = getExpanded();
-  if (!editingProjectId) exp.push(goalId);
-  document.getElementById('projectModal').style.display = 'none';
-  render(); restoreExpanded(exp);
-  toast(editingProjectId?'Project updated':'Project created', 'success');
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -1805,11 +1874,20 @@ document.getElementById('pSave').addEventListener('click', async () => {
 // ═══════════════════════════════════════════════════════════
 function renderTypesList() {
   const el = document.getElementById('typesList');
-  el.innerHTML = `<div class="type-list">${S.types.map((t,i)=>
-    `<div class="type-row"><span>${esc(t)}</span><button data-del-type="${i}">Remove</button></div>`
+  el.innerHTML = `<div class="type-list">${S.types.map(t=>
+    `<div class="type-row"><span>${esc(t.name)}</span><button data-del-type-id="${t.id}">Remove</button></div>`
   ).join('')}</div>`;
-  el.querySelectorAll('[data-del-type]').forEach(b => {
-    b.addEventListener('click', () => { S.types.splice(+b.dataset.delType,1); save(); renderTypesList(); });
+  el.querySelectorAll('[data-del-type-id]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const id = b.dataset.delTypeId;
+      try {
+        await apiFetch('DELETE', `/api/project-types?id=${id}`);
+        S.types = S.types.filter(t => t.id !== id);
+        renderTypesList();
+      } catch(e) {
+        toast(`Failed to remove type: ${e.message}`, 'error');
+      }
+    });
   });
 }
 
@@ -1818,11 +1896,18 @@ document.getElementById('manageTypesBtn').addEventListener('click', () => {
   document.getElementById('typesModal').style.display = 'flex';
 });
 
-document.getElementById('addTypeBtn').addEventListener('click', () => {
+document.getElementById('addTypeBtn').addEventListener('click', async () => {
   const val = document.getElementById('newTypeName').value.trim();
   if (!val) return;
-  if (!S.types.includes(val)) { S.types.push(val); save(); renderTypesList(); }
-  document.getElementById('newTypeName').value = '';
+  if (S.types.find(t => t.name === val)) { toast('Type already exists', 'warn'); return; }
+  try {
+    const result = await apiFetch('POST', '/api/project-types', { name: val });
+    S.types.push(result);
+    renderTypesList();
+    document.getElementById('newTypeName').value = '';
+  } catch(e) {
+    toast(`Failed to add type: ${e.message}`, 'error');
+  }
 });
 
 document.getElementById('typesClose').addEventListener('click', () => {
@@ -1927,47 +2012,47 @@ document.addEventListener('keydown', e => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// SEED DATA
-// ═══════════════════════════════════════════════════════════
-function seed() {
-  const v1=uid(), v2=uid(), v3=uid();
-  const g1=uid(), g2=uid(), g3=uid();
-  const now = new Date();
-  const yy = String(now.getFullYear()).slice(2);
-  const ww = String(isoWeek(now)).padStart(2,'0');
-  S.verticals = [
-    { id:v1, name:'Personal', code:'SELF', color:'#4a7fa5', spaceId:null },
-    { id:v2, name:'Acme Corp', code:'ACME', color:'#c0392b', spaceId:null },
-    { id:v3, name:'Beta LLC', code:'BETA', color:'#c8a84b', spaceId:null },
-  ];
-  S.goals = [
-    { id:g1, name:'Q2 Website Overhaul', code:'ACME-100', type:'deliverable', verticalId:v2, date:'2026-06-30',
-      description:'Full redesign and rebuild of acmecorp.com including all product pages, blog, and contact flow.',
-      boundaries:'Does not include backend API changes, CRM integration, or ad campaign setup.', cuFolderId:null },
-    { id:g2, name:'April Operations Sprint', code:'BETA-100', type:'timebox', verticalId:v3, date:'2026-04-01', endDate:'2026-04-30',
-      description:'A focused four-week push to systematize internal ops: SOPs, tooling, and onboarding.',
-      boundaries:'Limited to internal-facing workflows only. No client deliverables this sprint.', cuFolderId:null },
-    { id:g3, name:'Personal Brand Launch', code:'SELF-100', type:'deliverable', verticalId:v1, date:'2026-07-15',
-      description:'Launch personal site, newsletter, and LinkedIn presence as a thought-leadership platform.',
-      boundaries:'MVP only — no podcast, no course, no paid offers in this phase.', cuFolderId:null },
-  ];
-  S.projects = [
-    { id:uid(), goalId:g1, codeBase:`ACME-${yy}${ww}A`, codePrefix:`ACME-${yy}${ww}`, fullCode:`ACME-${yy}${ww}A Audit`, descriptor:'Audit', name:'Content & UX Audit', type:'Research', status:'done', description:'Completed full audit of site structure, content gaps, and UX friction points.', cuListId:null },
-    { id:uid(), goalId:g1, codeBase:`ACME-${yy}${ww}B`, codePrefix:`ACME-${yy}${ww}`, fullCode:`ACME-${yy}${ww}B Design`, descriptor:'Design', name:'Design System Build', type:'Design', status:'progress', description:'Building component library in Figma. On track for handoff end of month.', cuListId:null },
-    { id:uid(), goalId:g1, codeBase:`ACME-${yy}${ww}C`, codePrefix:`ACME-${yy}${ww}`, fullCode:`ACME-${yy}${ww}C Dev`, descriptor:'Dev', name:'Development Handoff', type:'Development', status:'backlog', description:'Awaiting design sign-off before dev kickoff.', cuListId:null },
-    { id:uid(), goalId:g2, codeBase:`BETA-${yy}${ww}A`, codePrefix:`BETA-${yy}${ww}`, fullCode:`BETA-${yy}${ww}A SOPs`, descriptor:'SOPs', name:'SOPs Documentation', type:'Operations', status:'progress', description:'Writing SOPs for onboarding, support, and billing workflows.', cuListId:null },
-    { id:uid(), goalId:g2, codeBase:`BETA-${yy}${ww}B`, codePrefix:`BETA-${yy}${ww}`, fullCode:`BETA-${yy}${ww}B CRM`, descriptor:'CRM', name:'CRM Migration', type:'Operations', status:'blocked', description:'Waiting on data export from legacy system. Escalated to client IT.', cuListId:null },
-    { id:uid(), goalId:g3, codeBase:`SELF-${yy}${ww}A`, codePrefix:`SELF-${yy}${ww}`, fullCode:`SELF-${yy}${ww}A Site`, descriptor:'Site', name:'Personal Website MVP', type:'Development', status:'backlog', description:'Single-page site with bio, selected work, and contact form.', cuListId:null },
-  ];
-}
-
-// ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
-load();
-if (!S.verticals.length && !S.goals.length) seed();
-render();
-checkCuConnection();
+
+async function initApp() {
+  try {
+    const [verticals, goals, projects, types] = await Promise.all([
+      apiFetch('GET', '/api/verticals'),
+      apiFetch('GET', '/api/goals'),
+      apiFetch('GET', '/api/projects'),
+      apiFetch('GET', '/api/project-types'),
+    ]);
+    if (!verticals || !goals || !projects || !types) return; // 401 handled by apiFetch
+    S.verticals = verticals;
+    S.goals     = goals;
+    S.projects  = projects;
+    S.types     = types; // [{id, name, sortOrder}]
+    document.getElementById('app-loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    render();
+    checkCuConnection();
+  } catch(e) {
+    document.getElementById('app-loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    toast('Failed to load data. Please refresh.', 'error');
+    console.error('[initApp] load failed:', e);
+  }
+}
+
+window.addEventListener('load', async function () {
+  await window.Clerk.load();
+
+  if (window.Clerk.user) {
+    document.getElementById('auth-wall').style.display = 'none';
+    window.Clerk.mountUserButton(document.getElementById('clerk-user-btn'));
+    initApp();
+  } else {
+    document.getElementById('app-loading').style.display = 'none';
+    document.getElementById('auth-wall').style.display = 'flex';
+    window.Clerk.mountSignIn(document.getElementById('sign-in-container'));
+  }
+});
 </script>
 </body>
 </html>
