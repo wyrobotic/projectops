@@ -2049,17 +2049,28 @@ window.addEventListener('load', async function () {
 
   await window.Clerk.load();
 
-  if (window.Clerk.user) {
+  let appStarted = false;
+
+  function showApp() {
+    if (appStarted) return;
+    appStarted = true;
     document.getElementById('auth-wall').style.display = 'none';
+    document.getElementById('app-loading').style.display = 'flex';
     window.Clerk.mountUserButton(document.getElementById('clerk-user-btn'));
     initApp();
+  }
+
+  // Listen for auth state changes (fires on sign-in without needing a redirect)
+  window.Clerk.addListener(({ user }) => {
+    if (user) showApp();
+  });
+
+  if (window.Clerk.user) {
+    showApp();
   } else {
     document.getElementById('app-loading').style.display = 'none';
     document.getElementById('auth-wall').style.display = 'flex';
-    // afterSignInUrl triggers a page reload after sign-in so initApp() runs
-    window.Clerk.mountSignIn(document.getElementById('sign-in-container'), {
-      afterSignInUrl: window.location.href
-    });
+    window.Clerk.mountSignIn(document.getElementById('sign-in-container'));
   }
 });
 </script>
