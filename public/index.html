@@ -2041,6 +2041,12 @@ async function initApp() {
 }
 
 window.addEventListener('load', async function () {
+  // Clerk script is async — wait for it to be available before calling .load()
+  await new Promise(resolve => {
+    if (window.Clerk) return resolve();
+    document.addEventListener('clerk:loaded', resolve);
+  });
+
   await window.Clerk.load();
 
   if (window.Clerk.user) {
@@ -2050,7 +2056,10 @@ window.addEventListener('load', async function () {
   } else {
     document.getElementById('app-loading').style.display = 'none';
     document.getElementById('auth-wall').style.display = 'flex';
-    window.Clerk.mountSignIn(document.getElementById('sign-in-container'));
+    // afterSignInUrl triggers a page reload after sign-in so initApp() runs
+    window.Clerk.mountSignIn(document.getElementById('sign-in-container'), {
+      afterSignInUrl: window.location.href
+    });
   }
 });
 </script>
