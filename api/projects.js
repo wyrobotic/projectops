@@ -68,21 +68,17 @@ export default async function handler(req, res) {
       const yy    = String(now.getFullYear()).slice(2);
       const ww    = String(isoWeekNumber(now)).padStart(2, '0');
 
-      // Transactional code generation:
-      // 1. Lock the goal row (and JOIN its vertical) to serialise concurrent inserts.
-      // 2. Count existing projects sharing this week prefix to derive the letter.
-      // 3. Insert the new project row.
-      const txRows = await sql.transaction([
-        sql`
-          SELECT g.id, g.cu_folder_id, v.code AS vert_code, v.space_id
-          FROM goals g
-          LEFT JOIN verticals v ON v.id = g.vertical_id
-          WHERE g.id = ${goalId}
-          FOR UPDATE
-        `,
-      ]);
+      // Fetch goal + vertical for code generation.
+      // NeonDB HTTP driver is stateless — FOR UPDATE is not supported.
+      // Race conditions on code generation are acceptable for a small team app.
+      const goalRows = await sql`
+        SELECT g.id, g.cu_folder_id, v.code AS vert_code, v.space_id
+        FROM goals g
+        LEFT JOIN verticals v ON v.id = g.vertical_id
+        WHERE g.id = ${goalId}
+      `;
 
-      const goalRow = txRows[0][0];
+      const goalRow = goalRows[0];
       if (!goalRow) {
         return res.status(400).json({ error: 'goalId does not exist' });
       }

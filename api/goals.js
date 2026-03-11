@@ -66,21 +66,16 @@ export default async function handler(req, res) {
       let cuFolderId = null;
 
       if (verticalId) {
-        // Transactional code generation:
-        // 1. Lock the vertical row to serialise concurrent inserts.
-        // 2. Count existing goals for this vertical to derive the goal number.
-        // 3. Insert the new goal within the same transaction.
-        const txRows = await sql.transaction([
-          sql`SELECT id, code, space_id FROM verticals WHERE id = ${verticalId} FOR UPDATE`,
-          sql`SELECT COUNT(*) AS cnt FROM goals WHERE vertical_id = ${verticalId}`,
-        ]);
-
-        const vertRow = txRows[0][0];
+        // Fetch vertical and count existing goals for code generation.
+        // NeonDB HTTP driver is stateless — FOR UPDATE is not supported.
+        const vertRows = await sql`SELECT id, code, space_id FROM verticals WHERE id = ${verticalId}`;
+        const vertRow = vertRows[0];
         if (!vertRow) {
           return res.status(400).json({ error: 'verticalId does not exist' });
         }
 
-        const goalNumber = 100 + parseInt(txRows[1][0].cnt, 10);
+        const countRows = await sql`SELECT COUNT(*) AS cnt FROM goals WHERE vertical_id = ${verticalId}`;
+        const goalNumber = 100 + parseInt(countRows[0].cnt, 10);
         goalCode = `${vertRow.code}-${goalNumber}`;
 
         // Attempt ClickUp folder creation (non-fatal)
