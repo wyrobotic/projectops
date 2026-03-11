@@ -24,9 +24,7 @@ export async function requireAuth(req) {
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
     const token = authHeader.slice(7);
-    const payload = await clerk.verifyToken(token, {
-      authorizedParties: [process.env.APP_URL?.trim()],
-    });
+    const payload = await clerk.verifyToken(token);
     return payload || null;
   } catch {
     return null;
