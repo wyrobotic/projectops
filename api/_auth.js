@@ -10,22 +10,24 @@ const clerk = createClerkClient({
 
 /**
  * Verifies the Bearer token in the Authorization header using Clerk.
- * Returns the auth object (truthy) on success, null on failure.
+ * Returns the payload (truthy) on success, null on failure.
+ *
+ * Uses verifyToken() directly — compatible with Node.js http.IncomingMessage
+ * (Vercel serverless functions). authenticateRequest() requires a Web Fetch
+ * Request object and does not work here.
  *
  * Since all data is shared (no user_id), we only need to confirm the
  * request is authenticated — not which user made it.
- *
- * Usage in every data endpoint:
- *   const auth = await requireAuth(req);
- *   if (!auth) return res.status(401).json({ error: 'Unauthorized' });
  */
 export async function requireAuth(req) {
   try {
-    const requestState = await clerk.authenticateRequest(req, {
-      authorizedParties: [process.env.APP_URL],
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+    const token = authHeader.slice(7);
+    const payload = await clerk.verifyToken(token, {
+      authorizedParties: [process.env.APP_URL?.trim()],
     });
-    if (!requestState.isAuthenticated) return null;
-    return requestState.toAuth();
+    return payload || null;
   } catch {
     return null;
   }
