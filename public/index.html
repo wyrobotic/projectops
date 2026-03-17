@@ -16,39 +16,39 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #0d1117;
-  --bg2:      #131921;
-  --surface:  #161d27;
-  --surface2: #1c2535;
-  --surface3: #222e42;
-  --border:   #1e2d42;
-  --border2:  #2a3f5c;
-  --border3:  #334d6e;
+  --bg:       #f8fafc;
+  --bg2:      #f1f5f9;
+  --surface:  #ffffff;
+  --surface2: #f8fafc;
+  --surface3: #f1f5f9;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --border3:  #94a3b8;
 
-  --text:     #e2e8f0;
-  --text2:    #8fa3be;
-  --text3:    #4a6080;
+  --text:     #0f172a;
+  --text2:    #475569;
+  --text3:    #94a3b8;
 
-  --accent:       #4a7fa5;
-  --accent2:      #5a95c0;
-  --accent-dim:   rgba(74,127,165,0.15);
-  --accent-glow:  rgba(74,127,165,0.08);
+  --accent:       #2c6e9c;
+  --accent2:      #3b84c0;
+  --accent-dim:   rgba(44,110,156,0.12);
+  --accent-glow:  rgba(44,110,156,0.06);
 
-  --gold:         #c8a84b;
-  --gold-dim:     rgba(200,168,75,0.12);
-  --red:          #c0392b;
-  --red-dim:      rgba(192,57,43,0.12);
-  --green:        #2e8b57;
-  --green-dim:    rgba(46,139,87,0.12);
-  --amber:        #c87533;
-  --amber-dim:    rgba(200,117,51,0.12);
-  --blue:         #4a7fa5;
-  --blue-dim:     rgba(74,127,165,0.12);
-  --purple:       #7c5cbf;
-  --purple-dim:   rgba(124,92,191,0.12);
+  --gold:         #a87c10;
+  --gold-dim:     rgba(168,124,16,0.1);
+  --red:          #dc2626;
+  --red-dim:      rgba(220,38,38,0.08);
+  --green:        #16a34a;
+  --green-dim:    rgba(22,163,74,0.1);
+  --amber:        #d97706;
+  --amber-dim:    rgba(217,119,6,0.1);
+  --blue:         #2c6e9c;
+  --blue-dim:     rgba(44,110,156,0.1);
+  --purple:       #6d28d9;
+  --purple-dim:   rgba(109,40,217,0.08);
 
-  --shadow:  0 1px 4px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
-  --shadow2: 0 2px 8px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3);
+  --shadow:  0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.05);
+  --shadow2: 0 2px 8px rgba(0,0,0,0.10), 0 8px 24px rgba(0,0,0,0.07);
 }
 
 body {
@@ -71,14 +71,14 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 0 var(--border), 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 0 var(--border), 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .logo {
   font-family: 'DM Serif Display', serif;
   font-size: 19px;
   color: var(--text);
-  letter-spacing: -0.3px;
+  letter-spacing: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -496,10 +496,10 @@ header {
   padding: 10px 12px;
   cursor: grab;
   transition: box-shadow 0.15s, border-color 0.15s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
-.project-card:hover { border-color: var(--border3); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.project-card:hover { border-color: var(--border3); box-shadow: 0 2px 6px rgba(0,0,0,0.10); }
 .project-card:active { cursor: grabbing; }
 .project-card.card-dragging { opacity: 0.35; }
 .project-card.card-drag-over { border-color: var(--accent); }
@@ -593,7 +593,7 @@ header {
 /* ── MODAL ─────────────────────────────────────────────── */
 .overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.4);
   z-index: 200;
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
