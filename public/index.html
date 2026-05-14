@@ -206,6 +206,10 @@ header {
 .v-count { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); background: var(--surface3); padding: 1px 6px; border-radius: 8px; }
 .vertical-item.active .v-count { background: var(--accent-dim); color: var(--accent); }
 
+.v-edit-btn { font-size: 11px; color: var(--text3); opacity: 0; transition: opacity 0.12s; background: none; border: none; cursor: pointer; padding: 2px 2px; border-radius: 2px; flex-shrink: 0; }
+.vertical-item:hover .v-edit-btn { opacity: 1; }
+.v-edit-btn:hover { color: var(--accent); }
+
 .sidebar-footer { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
 .sidebar-footer button { width: 100%; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); background: none; border: 1px dashed var(--border2); border-radius: 3px; padding: 7px; cursor: pointer; transition: all 0.15s; }
 .sidebar-footer button:hover { color: var(--accent); border-color: var(--accent); }
@@ -1248,6 +1252,7 @@ function renderSidebar() {
           ${hasCu?'<span class="v-cu-icon">⬡</span>':''}
         </div>
       </div>
+      <button class="v-edit-btn" data-edit-vert="${v.id}" title="Edit vertical">✎</button>
       <span class="v-count">${gc}</span>
     </div>`;
   });
@@ -1255,12 +1260,20 @@ function renderSidebar() {
   el.innerHTML = html;
 
   el.querySelectorAll('.vertical-item').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', e => {
+      if (e.target.closest('[data-edit-vert]')) return;
       S.activeVerticalId = item.dataset.vid === 'all' ? null : item.dataset.vid;
       render();
     });
     item.addEventListener('dblclick', e => {
       if (item.dataset.vid !== 'all') { e.stopPropagation(); openVerticalModal(item.dataset.vid); }
+    });
+  });
+
+  el.querySelectorAll('[data-edit-vert]').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      openVerticalModal(b.dataset.editVert);
     });
   });
 }
