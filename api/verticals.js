@@ -133,12 +133,41 @@ export default async function handler(req, res) {
 
     // ── DELETE /api/verticals?id={id} ──────────────────────────────────────
     if (req.method === 'DELETE' && id) {
-      const result = await sql`
-        DELETE FROM verticals WHERE id = ${id} RETURNING id
+      // Fetch vertical first to get ClickUp space_id and verify existence
+      const vertRows = await sql`
+        SELECT id, space_id FROM verticals WHERE id = ${id}
       `;
-      if (result.length === 0) {
+      if (vertRows.length === 0) {
         return res.status(404).json({ error: 'Not found' });
       }
+
+      // Delete associated ClickUp Space (non-fatal)
+      const spaceId = vertRows[0].space_id;
+      if (spaceId && process.env.CLICKUP_API_TOKEN) {
+        try {
+          const cuRes = await fetch(
+            `https://api.clickup.com/api/v2/space/${spaceId}`,
+            {
+              method: 'DELETE',
+              headers: {
+                Authorization: process.env.CLICKUP_API_TOKEN,
+              },
+            }
+          );
+          if (!cuRes.ok) {
+            console.warn('[verticals] ClickUp space deletion failed:', cuRes.status);
+          }
+        } catch (cuErr) {
+          console.warn('[verticals] ClickUp space deletion error:', cuErr.message);
+        }
+      }
+
+      // Delete associated goals first (projects cascade-delete via FK)
+      await sql`DELETE FROM goals WHERE vertical_id = ${id}`;
+
+      // Delete the vertical
+      await sql`DELETE FROM verticals WHERE id = ${id}`;
+
       return res.status(200).json({ ok: true });
     }
 

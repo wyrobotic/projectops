@@ -926,6 +926,8 @@ header {
     </div>
 
     <div class="modal-actions">
+      <button class="btn btn-danger" id="vDelete" style="display:none">Delete Vertical &amp; ClickUp Space</button>
+      <span style="flex:1"></span>
       <button class="btn btn-ghost" id="vCancel">Cancel</button>
       <button class="btn btn-primary" id="vSave">Save Vertical</button>
     </div>
@@ -1607,6 +1609,7 @@ function openVerticalModal(id=null) {
   document.getElementById('vSpaceStatus').textContent = '';
   selectedColor = v ? v.color : COLORS[Math.floor(Math.random()*COLORS.length)];
   buildColorGrid();
+  document.getElementById('vDelete').style.display = id ? '' : 'none';
   document.getElementById('verticalModal').style.display = 'flex';
   setTimeout(() => document.getElementById('vName').focus(), 50);
 }
@@ -1663,6 +1666,36 @@ document.getElementById('vSave').addEventListener('click', async () => {
     toast(`Failed to save vertical: ${e.message}`, 'error');
   } finally {
     btn.disabled = false;
+  }
+});
+
+document.getElementById('vDelete').addEventListener('click', async () => {
+  if (!editingVerticalId) return;
+
+  // Count associated goals and projects for the confirmation message
+  const affectedGoals = S.goals.filter(g => g.verticalId === editingVerticalId);
+  const affectedProjCount = affectedGoals.reduce((a, g) => a + S.projects.filter(p => p.goalId === g.id).length, 0);
+
+  let msg = `Delete "${S.verticals.find(v => v.id === editingVerticalId)?.name}"`;
+  if (affectedGoals.length) msg += ` and its ${affectedGoals.length} goal(s)${affectedProjCount ? ` (${affectedProjCount} project(s))` : ''}`;
+  msg += '?';
+  msg += '\n\nThis will also delete the linked ClickUp Space if one is configured. This cannot be undone.';
+
+  if (!confirm(msg)) return;
+
+  try {
+    await apiFetch('DELETE', `/api/verticals?id=${editingVerticalId}`);
+    S.verticals = S.verticals.filter(v => v.id !== editingVerticalId);
+    // Remove orphaned goals and their projects from local state
+    const goalIds = S.goals.filter(g => g.verticalId === editingVerticalId).map(g => g.id);
+    S.goals = S.goals.filter(g => !goalIds.includes(g.id));
+    S.projects = S.projects.filter(p => !goalIds.includes(p.goalId));
+    document.getElementById('verticalModal').style.display = 'none';
+    if (S.activeVerticalId === editingVerticalId) S.activeVerticalId = null;
+    render();
+    toast('Vertical deleted', 'success');
+  } catch(e) {
+    toast(`Failed to delete vertical: ${e.message}`, 'error');
   }
 });
 
