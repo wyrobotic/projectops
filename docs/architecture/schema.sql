@@ -97,3 +97,23 @@ INSERT INTO project_types (id, name, sort_order) VALUES
   ('type-operations',  'Operations',  4),
   ('type-research',    'Research',    5)
 ON CONFLICT (name) DO NOTHING;
+
+
+-- ── list_templates ────────────────────────────────────────────────────────────
+-- ClickUp list templates users can apply when creating Lists. User-managed via UI.
+-- NOTE: No partial unique index on is_default. The NeonDB HTTP driver has no
+-- transactions, so the "only one default" rule is enforced in application code
+-- via a two-statement swap (unset all defaults, then set the chosen one). A
+-- unique index would fail mid-swap when two rows momentarily hold is_default=true.
+
+CREATE TABLE IF NOT EXISTS list_templates (
+  id              TEXT        PRIMARY KEY,
+  name            TEXT        NOT NULL,             -- short display name
+  cu_template_id  TEXT        NOT NULL,             -- ClickUp list template id, e.g. "t-901417866531"
+  description     TEXT        NOT NULL DEFAULT '',
+  is_default      BOOLEAN     NOT NULL DEFAULT false,
+  sort_order      INTEGER     NOT NULL DEFAULT 0,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS list_templates_sort_order_idx ON list_templates(sort_order);

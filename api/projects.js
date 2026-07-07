@@ -51,6 +51,7 @@ export default async function handler(req, res) {
         description = '',
         type        = '',
         status      = 'backlog',
+        templateId,          // optional ClickUp list-template id (cuTemplateId); used only at list-creation time
       } = req.body || {};
 
       if (!goalId || typeof goalId !== 'string' || !goalId.trim()) {
@@ -98,26 +99,66 @@ export default async function handler(req, res) {
       // Attempt ClickUp list creation (non-fatal)
       let cuListId = null;
       if (goalRow.cu_folder_id && process.env.CLICKUP_API_TOKEN) {
-        try {
-          const cuRes = await fetch(
-            `https://api.clickup.com/api/v2/folder/${goalRow.cu_folder_id}/list`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: process.env.CLICKUP_API_TOKEN,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ name: fullCode }),
+        // If a template was chosen, try create-from-template first. On any failure
+        // fall through to the plain-list creation below (both are non-fatal).
+        let templateCreated = false;
+        const tpl = (templateId || '').trim();
+        // Only attempt create-from-template when templateId matches the ClickUp
+        // list-template id format (e.g. "t-901417866531"). A malformed id is NOT
+        // fatal — we log and fall through to the plain-list creation below so the
+        // project still gets a List. encodeURIComponent is belt-and-suspenders
+        // alongside the regex to prevent path traversal / endpoint pivoting.
+        if (tpl && !/^t-\d+$/.test(tpl)) {
+          console.warn('[projects] ignoring malformed templateId');
+        }
+        if (/^t-\d+$/.test(tpl)) {
+          try {
+            const tplRes = await fetch(
+              `https://api.clickup.com/api/v2/folder/${encodeURIComponent(goalRow.cu_folder_id)}/list_template/${encodeURIComponent(tpl)}`,
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: process.env.CLICKUP_API_TOKEN,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: fullCode, options: { return_immediately: false } }),
+              }
+            );
+            if (tplRes.ok) {
+              const tplData = await tplRes.json();
+              cuListId = tplData.id || tplData.list?.id || null;
+              templateCreated = true;
+            } else {
+              console.warn('[projects] ClickUp template list creation failed:', tplRes.status);
             }
-          );
-          if (cuRes.ok) {
-            const cuData = await cuRes.json();
-            cuListId = cuData.id || null;
-          } else {
-            console.warn('[projects] ClickUp list creation failed:', cuRes.status);
+          } catch (tplErr) {
+            console.warn('[projects] ClickUp template list creation failed:', tplErr.message);
           }
-        } catch (cuErr) {
-          console.warn('[projects] ClickUp list creation error:', cuErr.message);
+        }
+
+        // Fallback: plain list creation (runs when no templateId or the template attempt failed).
+        if (!templateCreated) {
+          try {
+            const cuRes = await fetch(
+              `https://api.clickup.com/api/v2/folder/${encodeURIComponent(goalRow.cu_folder_id)}/list`,
+              {
+                method: 'POST',
+                headers: {
+                  Authorization: process.env.CLICKUP_API_TOKEN,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: fullCode }),
+              }
+            );
+            if (cuRes.ok) {
+              const cuData = await cuRes.json();
+              cuListId = cuData.id || null;
+            } else {
+              console.warn('[projects] ClickUp list creation failed:', cuRes.status);
+            }
+          } catch (cuErr) {
+            console.warn('[projects] ClickUp list creation error:', cuErr.message);
+          }
         }
       }
 
@@ -209,7 +250,7 @@ export default async function handler(req, res) {
       ) {
         try {
           const cuRes = await fetch(
-            `https://api.clickup.com/api/v2/list/${cur.cu_list_id}`,
+            `https://api.clickup.com/api/v2/list/${encodeURIComponent(cur.cu_list_id)}`,
             {
               method: 'PUT',
               headers: {

@@ -73,3 +73,14 @@ export function mapProjectType(row) {
     sortOrder: row.sort_order,
   };
 }
+
+export function mapListTemplate(row) {
+  return {
+    id:           row.id,
+    name:         row.name,
+    cuTemplateId: row.cu_template_id,
+    description:  row.description,
+    isDefault:    row.is_default,
+    sortOrder:    row.sort_order,
+  };
+}

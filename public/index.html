@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProjectOPS</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script
   async
   crossorigin="anonymous"
@@ -54,7 +54,7 @@
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 300;
   min-height: 100vh;
 }
@@ -75,7 +75,8 @@ header {
 }
 
 .logo {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
   font-size: 19px;
   color: var(--text);
   letter-spacing: 0;
@@ -85,7 +86,7 @@ header {
 }
 
 .logo-badge {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -101,7 +102,7 @@ header {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--text3);
 }
@@ -120,7 +121,7 @@ header {
 
 /* ── BUTTONS ─────────────────────────────────────────────── */
 .btn {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.07em;
@@ -171,7 +172,7 @@ header {
 }
 
 .sidebar-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 500;
   letter-spacing: 0.14em;
@@ -200,10 +201,10 @@ header {
 .v-name { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .vertical-item.active .v-name { color: var(--accent2); font-weight: 500; }
 .v-meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-.v-code { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); }
+.v-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text3); }
 .v-cu-icon { font-size: 9px; color: var(--purple); opacity: 0.7; }
 
-.v-count { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); background: var(--surface3); padding: 1px 6px; border-radius: 8px; }
+.v-count { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text3); background: var(--surface3); padding: 1px 6px; border-radius: 8px; }
 .vertical-item.active .v-count { background: var(--accent-dim); color: var(--accent); }
 
 .v-edit-btn { font-size: 11px; color: var(--text3); opacity: 0; transition: opacity 0.12s; background: none; border: none; cursor: pointer; padding: 2px 2px; border-radius: 2px; flex-shrink: 0; }
@@ -211,7 +212,7 @@ header {
 .v-edit-btn:hover { color: var(--accent); }
 
 .sidebar-footer { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
-.sidebar-footer button { width: 100%; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); background: none; border: 1px dashed var(--border2); border-radius: 3px; padding: 7px; cursor: pointer; transition: all 0.15s; }
+.sidebar-footer button { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); background: none; border: 1px dashed var(--border2); border-radius: 3px; padding: 7px; cursor: pointer; transition: all 0.15s; }
 .sidebar-footer button:hover { color: var(--accent); border-color: var(--accent); }
 
 /* ── CONTENT ─────────────────────────────────────────────── */
@@ -225,8 +226,8 @@ header {
   gap: 16px;
 }
 
-.page-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); line-height: 1.2; }
-.page-meta { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: 'DM Mono', monospace; letter-spacing: 0.03em; }
+.page-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 24px; color: var(--text); line-height: 1.2; }
+.page-meta { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.03em; }
 
 /* ── STATS ─────────────────────────────────────────────── */
 .stats-row {
@@ -245,8 +246,8 @@ header {
   flex: 1;
 }
 
-.stat-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--text); }
-.stat-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-top: 2px; }
+.stat-val { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 22px; color: var(--text); }
+.stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-top: 2px; }
 
 /* ── GOAL CARD ─────────────────────────────────────────── */
 .goal-card {
@@ -275,7 +276,7 @@ header {
 .goal-drag:active { cursor: grabbing; }
 
 .goal-num {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--text3);
   background: var(--surface2);
@@ -299,7 +300,7 @@ header {
 .goal-pills { display: flex; align-items: center; gap: 7px; margin-top: 5px; padding-left: 10px; flex-wrap: wrap; }
 
 .pill {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -315,7 +316,7 @@ header {
 .goal-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
 
 .goal-proj-count {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--text3);
   background: var(--surface2);
@@ -363,7 +364,7 @@ header {
 }
 
 .info-block-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -390,7 +391,7 @@ header {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--purple);
   background: var(--purple-dim);
@@ -405,7 +406,7 @@ header {
 .cu-link-btn:hover { background: rgba(124,92,191,0.2); border-color: rgba(124,92,191,0.4); }
 
 .cu-pending {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--text3);
   font-style: italic;
@@ -429,7 +430,7 @@ header {
 }
 
 .archived-toggle {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--text3);
   cursor: pointer;
@@ -461,7 +462,7 @@ header {
 }
 
 .col-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 500;
   letter-spacing: 0.09em;
@@ -474,7 +475,7 @@ header {
 .col-done     .col-label { color: var(--gold); }
 
 .col-count {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   color: var(--text3);
   background: var(--surface3);
@@ -510,7 +511,7 @@ header {
 .project-card.archived-card { opacity: 0.4; border-style: dashed; }
 
 .p-code {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   color: var(--accent);
   font-weight: 500;
@@ -547,7 +548,7 @@ header {
 .p-footer-left { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
 
 .type-tag {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   color: var(--text3);
   background: var(--surface3);
@@ -562,7 +563,7 @@ header {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   color: var(--purple);
   background: var(--purple-dim);
@@ -580,7 +581,7 @@ header {
 .project-card:hover .p-actions { opacity: 1; }
 .project-card .icon-btn { width: 22px; height: 22px; font-size: 10px; }
 
-.empty-col { text-align: center; padding: 14px 8px; color: var(--text3); font-size: 10px; font-family: 'DM Mono', monospace; }
+.empty-col { text-align: center; padding: 14px 8px; color: var(--text3); font-size: 10px; font-family: 'JetBrains Mono', monospace; }
 
 /* ── EMPTY STATE ─────────────────────────────────────────── */
 .empty-state {
@@ -591,7 +592,7 @@ header {
   color: var(--text3);
 }
 
-.empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text2); margin-bottom: 8px; }
+.empty-state h3 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 20px; color: var(--text2); margin-bottom: 8px; }
 .empty-state p { font-size: 13px; line-height: 1.6; }
 
 /* ── MODAL ─────────────────────────────────────────────── */
@@ -619,7 +620,8 @@ header {
 .modal-wide { max-width: 600px; }
 
 .modal-title {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
   font-size: 20px;
   margin-bottom: 20px;
   color: var(--text);
@@ -629,7 +631,7 @@ header {
 
 .form-label {
   display: block;
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -645,7 +647,7 @@ header {
   border: 1px solid var(--border2);
   border-radius: 3px;
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 300;
   padding: 9px 12px;
@@ -660,11 +662,11 @@ header {
 
 .form-textarea { resize: vertical; min-height: 78px; }
 .form-select option { background: var(--surface2); }
-.form-hint { font-size: 10px; color: var(--text3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+.form-hint { font-size: 10px; color: var(--text3); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 .code-preview {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   font-weight: 500;
   color: var(--accent2);
@@ -682,7 +684,7 @@ header {
 }
 
 .modal-section-title {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -732,12 +734,25 @@ header {
 .type-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 .type-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; }
 .type-row span { flex: 1; font-size: 13px; color: var(--text2); }
-.type-row button { font-size: 10px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 2px; font-family: 'DM Mono', monospace; }
+.type-row button { font-size: 10px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; }
 .type-row button:hover { color: #e06060; background: var(--red-dim); }
+
+/* List Templates manager rows (3 fields per template) */
+.tmpl-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; }
+.tmpl-row .tmpl-main { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tmpl-row .tmpl-name { font-size: 13px; color: var(--text2); font-weight: 500; }
+.tmpl-row .tmpl-cuid { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); }
+.tmpl-row .tmpl-desc { font-size: 11px; color: var(--text3); }
+.tmpl-row .tmpl-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.tmpl-default { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; cursor: pointer; user-select: none; }
+.tmpl-default input { cursor: pointer; }
+.tmpl-row .tmpl-remove { font-size: 10px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; }
+.tmpl-row .tmpl-remove:hover { color: #e06060; background: var(--red-dim); }
+.tmpl-add-fields { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 
 /* ── EXPORT ─────────────────────────────────────────────── */
 .export-pre {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--text2);
   background: var(--bg2);
@@ -758,7 +773,7 @@ header {
   border: 1px solid var(--border2);
   border-left: 3px solid var(--accent);
   color: var(--text);
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   padding: 10px 16px;
   border-radius: 3px;
@@ -771,6 +786,29 @@ header {
 .toast.success { border-left-color: var(--green); }
 .toast.error   { border-left-color: var(--red); }
 .toast.warn    { border-left-color: var(--amber); }
+
+#session-banner {
+  position: fixed; top: 0; left: 0; right: 0;
+  display: none;
+  align-items: center; justify-content: center; gap: 14px;
+  background: var(--amber-dim);
+  border-bottom: 1px solid var(--amber);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 9px 16px;
+  z-index: 600;
+  box-shadow: var(--shadow);
+}
+#session-banner.show { display: flex; }
+#session-banner .sb-msg::before { content: '⚠ '; color: var(--amber); }
+#session-banner button {
+  font-family: inherit; font-size: 11px;
+  background: var(--amber); color: #fff;
+  border: none; border-radius: 3px;
+  padding: 5px 12px; cursor: pointer;
+}
+#session-banner button:hover { filter: brightness(1.08); }
 
 @keyframes toastIn { from { transform: translateY(6px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -829,7 +867,7 @@ header {
 }
 
 .loading-text {
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--text3);
   letter-spacing: 0.08em;
@@ -837,6 +875,12 @@ header {
 </style>
 </head>
 <body>
+
+<!-- Session-expired banner (shown when Clerk session goes null while app is open) -->
+<div id="session-banner">
+  <span class="sb-msg">Your session has expired. Refresh and sign in again to keep working — unsaved changes will be lost.</span>
+  <button type="button" onclick="location.reload()">Refresh now</button>
+</div>
 
 <!-- Loading state (shown until Clerk + data ready) -->
 <div id="app-loading">
@@ -862,6 +906,7 @@ header {
       <div class="cu-dot" id="cuDot"></div>
       <span id="cuStatusText">ClickUp</span>
     </div>
+    <button class="btn btn-ghost btn-sm" id="manageTemplatesBtn">⚙ Temps</button>
     <button class="btn btn-ghost btn-sm" id="manageTypesBtn">⚙ Types</button>
     <button class="btn btn-ghost btn-sm" id="exportBtn">↓ Export</button>
     <button class="btn btn-primary btn-sm" id="addGoalBtn">+ Goal</button>
@@ -905,7 +950,7 @@ header {
       <div class="form-group">
         <label class="form-label">4-Char Code</label>
         <input class="form-input" id="vCode" placeholder="ACME" maxlength="4"
-          style="font-family:'DM Mono',monospace;text-transform:uppercase;font-weight:500;letter-spacing:0.1em">
+          style="font-family:'JetBrains Mono',monospace;text-transform:uppercase;font-weight:500;letter-spacing:0.1em">
         <div class="form-hint">Unique · root of all project codes</div>
       </div>
     </div>
@@ -923,7 +968,7 @@ header {
       <div class="form-group">
         <label class="form-label">ClickUp Space ID <span>(optional — paste from ClickUp URL)</span></label>
         <input class="form-input" id="vSpaceId" placeholder="e.g. 90112345678"
-          style="font-family:'DM Mono',monospace">
+          style="font-family:'JetBrains Mono',monospace">
         <div class="form-hint" id="vSpaceStatus"></div>
       </div>
       <button class="btn btn-ghost btn-sm" id="vVerifySpace">Verify Space</button>
@@ -1035,6 +1080,12 @@ header {
       <div class="modal-section">
         <div class="modal-section-title">ClickUp</div>
         <div class="notice" id="pCuNotice"></div>
+        <div class="form-group" style="margin-top:10px">
+          <label class="form-label">List Template <span>(applied when the ClickUp List is created)</span></label>
+          <select class="form-select" id="pTemplate">
+            <option value="">— No template —</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="modal-actions">
@@ -1058,6 +1109,23 @@ header {
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="typesClose">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATES MODAL -->
+<div class="overlay" id="templatesModal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">Manage List Templates</div>
+    <div id="templatesList"></div>
+    <div class="tmpl-add-fields">
+      <input class="form-input" id="newTemplateName" placeholder="Short name…">
+      <input class="form-input" id="newTemplateCuId" placeholder="t-901417866531">
+      <input class="form-input" id="newTemplateDesc" placeholder="What this template sets up…">
+      <button class="btn btn-primary" id="addTemplateBtn">Add Template</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="templatesClose">Done</button>
     </div>
   </div>
 </div>
@@ -1103,7 +1171,34 @@ const STATUS_LABELS = { backlog:'Backlog', progress:'In Progress', blocked:'Bloc
 // AUTH + API
 // ═══════════════════════════════════════════════════════════
 
+// Single source of truth for "the session is gone". Shows the banner and
+// disables write actions so the user can't keep trying to save into a dead
+// session. Recovery is a refresh (the banner's button), so we don't re-enable.
+let sessionExpired = false;
+function showSessionExpired() {
+  if (sessionExpired) return;
+  sessionExpired = true;
+  document.getElementById('session-banner')?.classList.add('show');
+  // Disable the write-to-backend save buttons and the top-level create/add
+  // entry points so write actions grey out consistently. Read-only actions
+  // (Copy to Clipboard, Export, and the Manage Types/Templates openers) stay
+  // enabled so the user can still open managers and salvage their work.
+  // Dynamically-rendered row buttons (delete/reorder) intentionally remain in
+  // the DOM but fail safely via apiFetch's session guard, which throws a clear
+  // toast rather than writing into a dead session.
+  ['vSave', 'gSave', 'pSave', 'addGoalBtn', 'addTypeBtn', 'addTemplateBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.disabled = true;
+  });
+}
+
 async function apiFetch(method, path, body = null) {
+  // Clerk clears .session (not .user) when a session expires or is invalidated
+  // in another tab. Guard so we surface a clear message instead of a null crash.
+  if (!window.Clerk || !window.Clerk.session) {
+    showSessionExpired();
+    throw new Error('Your session has expired. Please refresh the page and sign in again.');
+  }
   const token = await window.Clerk.session.getToken();
   const opts = {
     method,
@@ -1115,9 +1210,13 @@ async function apiFetch(method, path, body = null) {
   if (body !== null) opts.body = JSON.stringify(body);
   const res = await fetch(path, opts);
   if (res.status === 401) {
-    await window.Clerk.signOut();
-    location.reload();
-    return null;
+    // Server rejected the token (expired/invalid) even though the client still
+    // had a session object. Surface the banner instead of an immediate reload
+    // so in-progress edits aren't silently discarded. Clear stale client state
+    // in the background; the user recovers via the banner's Refresh button.
+    showSessionExpired();
+    window.Clerk.signOut().catch(() => {});
+    throw new Error('Your session has expired. Please refresh the page and sign in again.');
   }
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
@@ -1135,6 +1234,7 @@ let S = {
   goals: [],
   projects: [],
   types: [],
+  templates: [],
   activeVerticalId: null
 };
 
@@ -1818,6 +1918,16 @@ function refreshProjectTypes(cur) {
     S.types.map(t=>`<option value="${t.name}" ${cur===t.name?'selected':''}>${esc(t.name)}</option>`).join('');
 }
 
+function refreshProjectTemplates(preselectDefault=false) {
+  const sel = document.getElementById('pTemplate');
+  const def = S.templates.find(t => t.isDefault);
+  sel.innerHTML = '<option value="">— No template —</option>' +
+    S.templates.map(t=>{
+      const selected = preselectDefault && def && t.id === def.id ? 'selected' : '';
+      return `<option value="${esc(t.cuTemplateId)}" ${selected}>${esc(t.name)}</option>`;
+    }).join('');
+}
+
 function updateCodePreview() {
   const gid = editingProjectGoalId || (editingProjectId ? S.projects.find(p=>p.id===editingProjectId)?.goalId : null);
   const goal = gid ? S.goals.find(g=>g.id===gid) : null;
@@ -1842,6 +1952,8 @@ function openProjectModal(projectId=null, goalId=null) {
   document.getElementById('pDesc').value = p ? (p.description||'') : '';
   document.getElementById('pStatus').value = p ? p.status : 'backlog';
   refreshProjectTypes(p ? p.type : '');
+  // Pre-select the default template only when creating a new project
+  refreshProjectTemplates(!projectId);
 
   const gid = goalId || (p ? p.goalId : null);
   const goal = gid ? S.goals.find(g=>g.id===gid) : null;
@@ -1898,7 +2010,8 @@ document.getElementById('pSave').addEventListener('click', async () => {
       const idx = S.projects.findIndex(p=>p.id===editingProjectId);
       if (idx !== -1) S.projects[idx] = result;
     } else {
-      const result = await apiFetch('POST', '/api/projects', data);
+      const createData = { ...data, templateId: document.getElementById('pTemplate')?.value || '' };
+      const result = await apiFetch('POST', '/api/projects', createData);
       if (!result) return;
       S.projects.push(result);
       exp.push(goalId);
@@ -1958,6 +2071,89 @@ document.getElementById('addTypeBtn').addEventListener('click', async () => {
 
 document.getElementById('typesClose').addEventListener('click', () => {
   document.getElementById('typesModal').style.display = 'none';
+  render();
+});
+
+// ═══════════════════════════════════════════════════════════
+// LIST TEMPLATES MANAGER
+// ═══════════════════════════════════════════════════════════
+function renderTemplatesList() {
+  const el = document.getElementById('templatesList');
+  el.innerHTML = `<div class="type-list">${S.templates.map(t=>
+    `<div class="tmpl-row">
+      <div class="tmpl-main">
+        <span class="tmpl-name">${esc(t.name)}</span>
+        <span class="tmpl-cuid">${esc(t.cuTemplateId||'')}</span>
+        ${t.description?`<span class="tmpl-desc">${esc(t.description)}</span>`:''}
+      </div>
+      <div class="tmpl-actions">
+        <label class="tmpl-default">
+          <input type="radio" name="tmplDefault" data-default-tmpl-id="${t.id}" ${t.isDefault?'checked':''}>
+          Default
+        </label>
+        <button class="tmpl-remove" data-del-tmpl-id="${t.id}">Remove</button>
+      </div>
+    </div>`
+  ).join('')}</div>`;
+
+  el.querySelectorAll('[data-del-tmpl-id]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const id = b.dataset.delTmplId;
+      try {
+        const result = await apiFetch('DELETE', `/api/list-templates?id=${id}`);
+        S.templates = S.templates.filter(t => t.id !== id);
+        // The server promotes the lowest-sort_order survivor when the deleted
+        // template was the default; reflect that new default locally.
+        if (result && result.newDefaultId) {
+          S.templates.forEach(t => { t.isDefault = (t.id === result.newDefaultId); });
+        }
+        renderTemplatesList();
+      } catch(e) {
+        toast(`Failed to remove template: ${e.message}`, 'error');
+      }
+    });
+  });
+
+  el.querySelectorAll('[data-default-tmpl-id]').forEach(r => {
+    r.addEventListener('change', async () => {
+      const id = r.dataset.defaultTmplId;
+      try {
+        await apiFetch('PUT', `/api/list-templates?id=${id}`, { isDefault: true });
+        S.templates.forEach(t => { t.isDefault = (t.id === id); });
+        renderTemplatesList();
+      } catch(e) {
+        toast(`Failed to set default template: ${e.message}`, 'error');
+      }
+    });
+  });
+}
+
+document.getElementById('manageTemplatesBtn').addEventListener('click', () => {
+  renderTemplatesList();
+  document.getElementById('templatesModal').style.display = 'flex';
+});
+
+document.getElementById('addTemplateBtn').addEventListener('click', async () => {
+  const name = document.getElementById('newTemplateName').value.trim();
+  const cuTemplateId = document.getElementById('newTemplateCuId').value.trim();
+  const description = document.getElementById('newTemplateDesc').value.trim();
+  if (!name || !cuTemplateId) { toast('Name and template ID required', 'warn'); return; }
+  try {
+    const result = await apiFetch('POST', '/api/list-templates', { name, cuTemplateId, description, isDefault: false });
+    if (!result) return;
+    if (result.isDefault) S.templates.forEach(t => { t.isDefault = false; });
+    S.templates.push(result);
+    renderTemplatesList();
+    document.getElementById('newTemplateName').value = '';
+    document.getElementById('newTemplateCuId').value = '';
+    document.getElementById('newTemplateDesc').value = '';
+  } catch(e) {
+    toast(`Failed to add template: ${e.message}`, 'error');
+  }
+});
+
+document.getElementById('templatesClose').addEventListener('click', () => {
+  document.getElementById('templatesModal').style.display = 'none';
   render();
 });
 
@@ -2043,7 +2239,7 @@ function toast(msg, type='') {
   setTimeout(() => el.remove(), 2600);
 }
 
-['verticalModal','goalModal','projectModal','typesModal','exportModal'].forEach(id => {
+['verticalModal','goalModal','projectModal','typesModal','templatesModal','exportModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) this.style.display = 'none';
   });
@@ -2051,7 +2247,7 @@ function toast(msg, type='') {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    ['verticalModal','goalModal','projectModal','typesModal','exportModal'].forEach(id => {
+    ['verticalModal','goalModal','projectModal','typesModal','templatesModal','exportModal'].forEach(id => {
       document.getElementById(id).style.display = 'none';
     });
   }
@@ -2063,17 +2259,19 @@ document.addEventListener('keydown', e => {
 
 async function initApp() {
   try {
-    const [verticals, goals, projects, types] = await Promise.all([
+    const [verticals, goals, projects, types, templates] = await Promise.all([
       apiFetch('GET', '/api/verticals'),
       apiFetch('GET', '/api/goals'),
       apiFetch('GET', '/api/projects'),
       apiFetch('GET', '/api/project-types'),
+      apiFetch('GET', '/api/list-templates'),
     ]);
-    if (!verticals || !goals || !projects || !types) return; // 401 handled by apiFetch
+    if (!verticals || !goals || !projects || !types || !templates) return; // 401 handled by apiFetch
     S.verticals = verticals;
     S.goals     = goals;
     S.projects  = projects;
     S.types     = types; // [{id, name, sortOrder}]
+    S.templates = templates; // [{id, name, cuTemplateId, description, isDefault, sortOrder}]
     document.getElementById('app-loading').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     render();
@@ -2107,8 +2305,11 @@ window.addEventListener('load', async function () {
   }
 
   // Listen for auth state changes (fires on sign-in without needing a redirect)
-  window.Clerk.addListener(({ user }) => {
+  window.Clerk.addListener(({ user, session }) => {
     if (user) showApp();
+    // Once the app is open, surface an expired/invalidated session proactively
+    // rather than waiting for the next save to fail.
+    if (appStarted && !session) showSessionExpired();
   });
 
   if (window.Clerk.user) {
