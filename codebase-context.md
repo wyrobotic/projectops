@@ -14,7 +14,7 @@ ProjectOPS is a strategic project management layer that sits above task managers
 
 It provides an executive-level portfolio view without getting into task-level detail, with direct ClickUp integration that auto-creates Folders and Lists as you plan.
 
-**Current state**: Static HTML file with localStorage. Migrating to a real backend (NeonDB + Clerk + Vercel Serverless) for persistence, multi-device access, and small team sharing.
+**Current state**: **Migration complete.** Live on NeonDB + Clerk + Vercel Serverless. Deployed as a **silo multi-tenant** app — one independent instance (own Vercel project, Neon DB, Clerk app, ClickUp token) per tenant. See `DEPLOYMENT.md`.
 
 ---
 
@@ -130,19 +130,33 @@ Auth flow: Browser → Clerk → Verified requests to API functions
 
 ### Active Development
 
-- Setting up project with PACT framework
-- Planning migration from localStorage to NeonDB backend
+- Live on NeonDB/Clerk/Vercel; running two silo instances (original + a second
+  ClickUp workspace).
+- ClickUp List Templates feature shipped (⚙ Temps manager + template-driven
+  List creation with plain-List fallback).
+
+### Key implementation notes
+
+- **Clerk config is env-driven**: `api/config.js` serves `CLERK_PUBLISHABLE_KEY`;
+  `public/index.html` `bootstrapClerk()` derives the Clerk domain from the key
+  and injects the SDK. No hardcoded key. **clerk-js is pinned to `@5`** to match
+  `@clerk/backend@1` — do NOT float on `@latest` (v6/core-3 is incompatible).
+- **NeonDB HTTP driver has no transactions** — "one default" invariants
+  (list_templates) are enforced with sequential statements in app code.
+- New tenants must run `docs/architecture/schema.sql` on their Neon DB and
+  redeploy after any Vercel env-var change.
 
 ### Known Issues
 
-- All data currently in localStorage (no persistence across devices)
-- No authentication (anyone with the URL can access)
+- No automated test infrastructure (List Templates default-invariant path
+  untested — peer review YELLOW).
 
 ### Recent Changes
 
 | Date | Change | Impact |
 |------|--------|--------|
 | 2026-03-11 | Project initialized with PACT starter template | Framework ready |
+| 2026-07-07 | List Templates feature; session-expiry hardening; env-driven Clerk; clerk-js pinned to v5; silo deployment runbook (`DEPLOYMENT.md`) | Second instance deployable; auth stable |
 
 ---
 
