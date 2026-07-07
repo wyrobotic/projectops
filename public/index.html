@@ -2295,7 +2295,7 @@ async function bootstrapClerk() {
     s.async = true;
     s.crossOrigin = 'anonymous';
     s.setAttribute('data-clerk-publishable-key', clerkPublishableKey);
-    s.src = `https://${host}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+    s.src = `https://${host}/npm/@clerk/clerk-js@5/dist/clerk.browser.js`;
     s.onload = resolve;
     s.onerror = () => reject(new Error('Clerk SDK script failed to load'));
     document.head.appendChild(s);
