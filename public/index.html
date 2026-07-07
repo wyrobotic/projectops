@@ -5,13 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProjectOPS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<script
-  async
-  crossorigin="anonymous"
-  data-clerk-publishable-key="pk_test_Zm9uZC10cmVlZnJvZy0xMS5jbGVyay5hY2NvdW50cy5kZXYk"
-  src="https://fond-treefrog-11.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
-  type="text/javascript"
-></script>
+<!-- Clerk SDK is loaded dynamically at runtime from /api/config (env-driven per
+     deployment) — see bootstrapClerk() below. No publishable key is hardcoded here. -->
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -2284,7 +2279,41 @@ async function initApp() {
   }
 }
 
+// Load the Clerk SDK using the publishable key from /api/config, so the Clerk
+// instance is env-driven per deployment (no hardcoded key in the HTML). The
+// publishable key encodes the Clerk Frontend API host as base64 of "<host>$",
+// so one env var (CLERK_PUBLISHABLE_KEY) drives both the key and the script src.
+async function bootstrapClerk() {
+  const res = await fetch('/api/config');
+  if (!res.ok) throw new Error(`/api/config returned ${res.status}`);
+  const { clerkPublishableKey } = await res.json();
+  if (!clerkPublishableKey) throw new Error('CLERK_PUBLISHABLE_KEY is not set');
+  const b64 = clerkPublishableKey.split('_').slice(2).join('_'); // strip pk_test_ / pk_live_
+  const host = atob(b64).replace(/\$+$/, '');                    // "<host>$" -> "<host>"
+  await new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    s.setAttribute('data-clerk-publishable-key', clerkPublishableKey);
+    s.src = `https://${host}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Clerk SDK script failed to load'));
+    document.head.appendChild(s);
+  });
+}
+
 window.addEventListener('load', async function () {
+  try {
+    await bootstrapClerk();
+  } catch (e) {
+    console.error('[bootstrap] Clerk load failed:', e);
+    document.getElementById('app-loading').style.display = 'none';
+    document.getElementById('auth-wall').style.display = 'flex';
+    document.getElementById('sign-in-container').textContent =
+      'Authentication is not configured for this deployment (missing CLERK_PUBLISHABLE_KEY).';
+    return;
+  }
+
   // Clerk script is async — wait for it to be available before calling .load()
   await new Promise(resolve => {
     if (window.Clerk) return resolve();
