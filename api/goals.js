@@ -202,6 +202,29 @@ export default async function handler(req, res) {
                   description, boundaries, cu_folder_id, sort_order
       `;
 
+      // One-way sync: propagate rename to the ClickUp Folder name (non-fatal).
+      // Folder name mirrors the create-time convention "<code> <name>" (code is immutable).
+      if (cur.cu_folder_id && process.env.CLICKUP_API_TOKEN && newName !== cur.name) {
+        try {
+          const cuRes = await fetch(
+            `https://api.clickup.com/api/v2/folder/${cur.cu_folder_id}`,
+            {
+              method: 'PUT',
+              headers: {
+                Authorization: process.env.CLICKUP_API_TOKEN,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ name: `${cur.code} ${newName}` }),
+            }
+          );
+          if (!cuRes.ok) {
+            console.warn('[goals] ClickUp folder rename failed:', cuRes.status);
+          }
+        } catch (cuErr) {
+          console.warn('[goals] ClickUp folder rename error:', cuErr.message);
+        }
+      }
+
       return res.status(200).json(mapGoal(rows[0]));
     }
 

@@ -128,6 +128,29 @@ export default async function handler(req, res) {
               const tplData = await tplRes.json();
               cuListId = tplData.id || tplData.list?.id || null;
               templateCreated = true;
+
+              // The list_template endpoint does not reliably accept `content`, so
+              // set the List overview via a follow-up Update List call (non-fatal).
+              if (cuListId && description.trim()) {
+                try {
+                  const descRes = await fetch(
+                    `https://api.clickup.com/api/v2/list/${encodeURIComponent(cuListId)}`,
+                    {
+                      method: 'PUT',
+                      headers: {
+                        Authorization: process.env.CLICKUP_API_TOKEN,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ content: description.trim() }),
+                    }
+                  );
+                  if (!descRes.ok) {
+                    console.warn('[projects] ClickUp template list content update failed:', descRes.status);
+                  }
+                } catch (descErr) {
+                  console.warn('[projects] ClickUp template list content update error:', descErr.message);
+                }
+              }
             } else {
               console.warn('[projects] ClickUp template list creation failed:', tplRes.status);
             }
@@ -147,7 +170,7 @@ export default async function handler(req, res) {
                   Authorization: process.env.CLICKUP_API_TOKEN,
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name: fullCode }),
+                body: JSON.stringify({ name: fullCode, ...(description.trim() ? { content: description.trim() } : {}) }),
               }
             );
             if (cuRes.ok) {
@@ -282,6 +305,37 @@ export default async function handler(req, res) {
         RETURNING id, goal_id, code_base, code_prefix, full_code, descriptor,
                   name, description, type, status, cu_list_id, sort_order
       `;
+
+      // One-way sync: propagate descriptor/description changes to the ClickUp List (non-fatal).
+      // List name tracks full_code (code_base + descriptor), NOT the project name — consistent
+      // with create-time naming. Only send fields that actually changed; skip the call entirely
+      // if neither changed to avoid an empty PUT.
+      if (cur.cu_list_id && process.env.CLICKUP_API_TOKEN) {
+        const listPayload = {};
+        if (newFullCode !== cur.full_code) listPayload.name = newFullCode;
+        if (newDescription !== cur.description) listPayload.content = newDescription.trim();
+
+        if (Object.keys(listPayload).length > 0) {
+          try {
+            const cuRes = await fetch(
+              `https://api.clickup.com/api/v2/list/${encodeURIComponent(cur.cu_list_id)}`,
+              {
+                method: 'PUT',
+                headers: {
+                  Authorization: process.env.CLICKUP_API_TOKEN,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(listPayload),
+              }
+            );
+            if (!cuRes.ok) {
+              console.warn('[projects] ClickUp list update failed:', cuRes.status);
+            }
+          } catch (cuErr) {
+            console.warn('[projects] ClickUp list update error:', cuErr.message);
+          }
+        }
+      }
 
       return res.status(200).json(mapProject(rows[0]));
     }

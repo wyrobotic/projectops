@@ -128,6 +128,33 @@ export default async function handler(req, res) {
         throw err;
       }
 
+      // One-way sync: propagate rename to the ClickUp Space name (non-fatal).
+      // Space name mirrors the create-time convention "<code> <name>" (e.g. "ACME Acme Corp").
+      if (
+        cur.space_id &&
+        process.env.CLICKUP_API_TOKEN &&
+        (newName !== cur.name || newCode !== cur.code)
+      ) {
+        try {
+          const cuRes = await fetch(
+            `https://api.clickup.com/api/v2/space/${cur.space_id}`,
+            {
+              method: 'PUT',
+              headers: {
+                Authorization: process.env.CLICKUP_API_TOKEN,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ name: `${newCode} ${newName}` }),
+            }
+          );
+          if (!cuRes.ok) {
+            console.warn('[verticals] ClickUp space rename failed:', cuRes.status);
+          }
+        } catch (cuErr) {
+          console.warn('[verticals] ClickUp space rename error:', cuErr.message);
+        }
+      }
+
       return res.status(200).json(mapVertical(rows[0]));
     }
 
