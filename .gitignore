@@ -47,3 +47,6 @@ temp/
 
 # Sandbox (static HTML mockups and prototypes, not part of app)
 sandbox/*/
+
+# vexp local index metadata (not part of app)
+.vexp/
