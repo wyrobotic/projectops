@@ -244,339 +244,223 @@ header {
 .stat-val { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 22px; color: var(--text); }
 .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-top: 2px; }
 
-/* ── GOAL CARD ─────────────────────────────────────────── */
-.goal-card {
+/* ── PROJECT TREE — status/priority pill tokens ──────────── */
+:root {
+  --st-backlog:#6b7688;  --st-backlog-bg:#eef1f5;
+  --st-progress:#2c6e9c; --st-progress-bg:#e5eef4;
+  --st-blocked:#c2410c;  --st-blocked-bg:#fdeee5;
+  --st-done:#2f855a;     --st-done-bg:#e6f4ec;
+  --st-archived:#7a8698; --st-archived-bg:#edeff3;
+
+  --pr-urgent:#b4341f;  --pr-urgent-bg:#fbe9e6;
+  --pr-high:#b45309;    --pr-high-bg:#fbf0e0;
+  --pr-medium:#2c6e9c;  --pr-medium-bg:#e5eef4;
+  --pr-low:#6b7688;     --pr-low-bg:#eef1f5;
+}
+
+/* ── TREE TOOLBAR ────────────────────────────────────────── */
+.tree-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.pri-filter { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pf-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text3); margin-right: 2px;
+}
+.pf-chip {
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400;
+  padding: 5px 11px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border2); background: var(--surface); color: var(--text2);
+  transition: all 0.15s;
+}
+.pf-chip:hover { border-color: var(--accent); color: var(--accent); }
+.pf-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pf-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toolbar-spacer { flex: 1; }
+.show-archived {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text2); cursor: pointer; user-select: none;
+}
+.show-archived input { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+
+/* ── TREE TABLE ──────────────────────────────────────────── */
+.tree {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  margin-bottom: 14px;
+  border-radius: 6px;
   box-shadow: var(--shadow);
-  transition: border-color 0.15s;
-}
-
-.goal-card:hover { border-color: var(--border2); }
-.goal-card.dragging { opacity: 0.35; }
-.goal-card.drag-over { border-color: var(--accent); border-style: dashed; }
-
-.goal-header {
-  padding: 15px 18px;
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.goal-drag { color: var(--text3); font-size: 13px; cursor: grab; padding-top: 2px; flex-shrink: 0; }
-.goal-drag:active { cursor: grabbing; }
-
-.goal-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--text3);
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  padding: 2px 7px;
-  border-radius: 2px;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.goal-body { flex: 1; min-width: 0; }
-
-.goal-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  padding-left: 10px;
-  line-height: 1.3;
-}
-
-.goal-pills { display: flex; align-items: center; gap: 7px; margin-top: 5px; padding-left: 10px; flex-wrap: wrap; }
-
-.pill {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  padding: 2px 7px;
-  border-radius: 2px;
-}
-
-.pill-deliverable { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(200,168,75,0.2); }
-.pill-timebox     { background: var(--blue-dim); color: var(--accent2); border: 1px solid rgba(74,127,165,0.2); }
-.pill-date        { background: var(--surface2); color: var(--text3); border: 1px solid var(--border2); }
-.pill-vert        { display: inline-flex; align-items: center; gap: 4px; background: var(--surface2); color: var(--text3); border: 1px solid var(--border2); }
-
-.goal-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
-
-.goal-proj-count {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--text3);
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  padding: 3px 9px;
-  border-radius: 10px;
-}
-
-.goal-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
-.goal-card:hover .goal-actions { opacity: 1; }
-
-.icon-btn {
-  width: 27px; height: 27px;
-  display: flex; align-items: center; justify-content: center;
-  background: none;
-  border: 1px solid var(--border2);
-  border-radius: 3px;
-  color: var(--text3);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-.icon-btn.del:hover { border-color: var(--red); color: #e06060; background: var(--red-dim); }
-
-.chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; flex-shrink: 0; }
-.goal-card.expanded .chevron { transform: rotate(90deg); }
-
-/* ── GOAL DESC PANEL ─────────────────────────────────────── */
-.goal-info-panel {
-  display: none;
-  padding: 0 18px 14px 52px;
-  gap: 12px;
-}
-
-.goal-card.expanded .goal-info-panel { display: flex; }
-
-.info-block {
-  flex: 1;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 11px 13px;
-}
-
-.info-block-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-bottom: 6px;
-}
-
-.info-block-text {
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.65;
-  white-space: pre-wrap;
-}
-
-/* ── CLICKUP LINK ─────────────────────────────────────────── */
-.cu-link-row {
-  display: none;
-  padding: 0 18px 12px 52px;
-}
-
-.goal-card.expanded .cu-link-row { display: flex; align-items: center; gap: 8px; }
-
-.cu-link-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--purple);
-  background: var(--purple-dim);
-  border: 1px solid rgba(124,92,191,0.25);
-  border-radius: 3px;
-  padding: 5px 11px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.15s;
-}
-
-.cu-link-btn:hover { background: rgba(124,92,191,0.2); border-color: rgba(124,92,191,0.4); }
-
-.cu-pending {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--text3);
-  font-style: italic;
-}
-
-/* ── KANBAN ─────────────────────────────────────────────── */
-.projects-panel {
-  display: none;
-  border-top: 1px solid var(--border);
-}
-
-.goal-card.expanded .projects-panel { display: block; }
-
-.kanban-toolbar {
-  padding: 9px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-}
-
-.archived-toggle {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--text3);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.kanban-board {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  overflow-x: auto;
-}
-
-.kanban-col {
-  border-right: 1px solid var(--border);
-  min-height: 120px;
-}
-
-.kanban-col:last-child { border-right: none; }
-
-.kanban-col-header {
-  padding: 9px 13px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg2);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.col-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.col-backlog  .col-label { color: var(--text3); }
-.col-progress .col-label { color: var(--accent2); }
-.col-blocked  .col-label { color: #e06060; }
-.col-done     .col-label { color: var(--gold); }
-
-.col-count {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: var(--text3);
-  background: var(--surface3);
-  padding: 1px 6px;
-  border-radius: 8px;
-}
-
-.kanban-cards {
-  padding: 9px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-height: 70px;
-}
-
-.kanban-cards.drag-over-col { background: var(--accent-glow); }
-
-/* ── PROJECT CARD ─────────────────────────────────────────── */
-.project-card {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 10px 12px;
-  cursor: grab;
-  transition: box-shadow 0.15s, border-color 0.15s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-}
-
-.project-card:hover { border-color: var(--border3); box-shadow: 0 2px 6px rgba(0,0,0,0.10); }
-.project-card:active { cursor: grabbing; }
-.project-card.card-dragging { opacity: 0.35; }
-.project-card.card-drag-over { border-color: var(--accent); }
-.project-card.archived-card { opacity: 0.4; border-style: dashed; }
-
-.p-code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: var(--accent);
-  font-weight: 500;
-  margin-bottom: 4px;
-  letter-spacing: 0.04em;
-}
-
-.p-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 4px;
-  line-height: 1.3;
-}
-
-.p-desc {
-  font-size: 11px;
-  color: var(--text2);
-  line-height: 1.5;
-  margin-bottom: 7px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.p-footer {
-  display: flex;
+.grid-cols {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 148px 138px 128px 128px;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
 }
 
-.p-footer-left { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-
-.type-tag {
+/* column headings (ClickUp/Drive intentionally unlabeled) */
+.col-head { background: var(--surface2); border-bottom: 1px solid var(--border); }
+.col-head > div {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: var(--text3);
-  background: var(--surface3);
-  border: 1px solid var(--border2);
-  padding: 2px 6px;
-  border-radius: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 9px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text3);
+  padding: 11px 12px;
 }
+.col-head > div:first-child { padding-left: 16px; }
 
-.p-cu-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: var(--purple);
-  background: var(--purple-dim);
-  border: 1px solid rgba(124,92,191,0.2);
-  border-radius: 2px;
-  padding: 2px 6px;
-  cursor: pointer;
-  text-decoration: none;
+/* Vertical group header */
+.v-group { border-top: 1px solid var(--border); }
+.v-group:first-of-type { border-top: none; }
+.v-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; cursor: pointer;
+  background: var(--bg2); transition: background 0.15s; user-select: none;
+}
+.v-header:hover { background: var(--surface3); }
+.v-header .rail { width: 4px; height: 22px; border-radius: 3px; flex-shrink: 0; }
+.v-header .caret { color: var(--text3); transition: transform 0.18s; display: flex; flex-shrink: 0; }
+.v-header .v-title { font-size: 13px; font-weight: 600; display: flex; align-items: baseline; gap: 9px; color: var(--text); }
+.v-header .v-title .code { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); font-weight: 500; }
+.v-header .meta { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--text2); font-size: 11px; }
+.v-header .meta .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); font-weight: 500; }
+
+/* Goal group header */
+.g-group { border-top: 1px solid var(--border); }
+.g-header {
+  display: flex; align-items: center; gap: 11px;
+  padding: 12px 16px 12px 30px; cursor: pointer; user-select: none;
+  transition: background 0.15s;
+}
+.g-header:hover { background: var(--surface2); }
+.g-header .caret { color: var(--text3); transition: transform 0.18s; display: flex; flex-shrink: 0; }
+.g-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
+  color: var(--text3); background: var(--surface2);
+  border: 1px solid var(--border2); border-radius: 3px; padding: 2px 7px; flex-shrink: 0;
+}
+.g-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; flex-shrink: 0; }
+.g-sep { color: var(--border2); font-weight: 400; flex-shrink: 0; }
+.g-desc {
+  font-size: 12px; color: var(--text2); font-weight: 300;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.g-count {
+  margin-left: auto; padding-left: 16px;
+  font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace;
+  text-align: right; white-space: nowrap; flex-shrink: 0;
+}
+.g-tools { display: flex; align-items: center; gap: 3px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+.g-header:hover .g-tools { opacity: 1; }
+.g-tool {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid var(--border2); border-radius: 3px;
+  color: var(--text3); font-size: 11px; cursor: pointer; transition: all 0.15s;
+}
+.g-tool:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.g-tool.g-tool-del:hover { border-color: var(--red); color: #e06060; background: var(--red-dim); }
+
+/* collapsed states */
+.v-group.collapsed .v-body { display: none; }
+.v-group.collapsed .v-header .caret { transform: rotate(-90deg); }
+.g-group.collapsed .g-body { display: none; }
+.g-group.collapsed .g-header .caret { transform: rotate(-90deg); }
+
+/* Project row */
+.g-body { position: relative; }
+.p-row { border-top: 1px solid var(--border); min-height: 52px; transition: background 0.14s; }
+.p-row:hover { background: var(--surface2); }
+
+.p-name-cell { display: flex; align-items: center; gap: 10px; padding: 9px 16px 9px 48px; position: relative; }
+.p-name-cell::before { content: ""; position: absolute; left: 37px; top: 0; bottom: 0; width: 1px; background: var(--border2); }
+.p-name-cell::after { content: ""; position: absolute; left: 37px; top: 50%; width: 9px; height: 1px; background: var(--border2); }
+.p-info { min-width: 0; flex: 1; }
+.p-title { display: flex; align-items: baseline; gap: 8px; }
+.p-open {
+  background: none; border: none; padding: 0; margin: 0; cursor: pointer;
+  display: flex; align-items: baseline; gap: 8px; text-align: left; min-width: 0; font-family: inherit;
+}
+.p-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.p-code { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; color: var(--accent); flex-shrink: 0; }
+.p-label { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-open:hover .p-label { color: var(--accent); }
+.p-desc { font-size: 11px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42ch; }
+.p-row.archived-row .p-label, .p-row.archived-row .p-code { opacity: 0.6; }
+.p-del {
+  opacity: 0; width: 22px; height: 22px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid var(--border2); border-radius: 3px;
+  color: var(--text3); font-size: 11px; cursor: pointer; transition: all 0.15s;
+}
+.p-row:hover .p-del { opacity: 1; }
+.p-del:hover { border-color: var(--red); color: #e06060; background: var(--red-dim); }
+.p-cell { padding: 9px 12px; min-width: 0; }
+
+/* dropdown pills */
+.sel-wrap { position: relative; display: inline-flex; width: 100%; }
+.pill-select {
+  appearance: none; -webkit-appearance: none;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+  border-radius: 999px; padding: 5px 26px 5px 12px;
+  border: 1px solid transparent; cursor: pointer; width: 100%;
+  background-repeat: no-repeat; background-position: right 9px center;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7688' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  transition: filter 0.15s, box-shadow 0.15s; outline: none;
+}
+.pill-select:hover { filter: brightness(0.97); }
+.pill-select:focus-visible { box-shadow: 0 0 0 3px var(--accent-dim); }
+
+.st-backlog  { color: var(--st-backlog);  background-color: var(--st-backlog-bg); }
+.st-progress { color: var(--st-progress); background-color: var(--st-progress-bg); }
+.st-blocked  { color: var(--st-blocked);  background-color: var(--st-blocked-bg); }
+.st-done     { color: var(--st-done);     background-color: var(--st-done-bg); }
+.st-archived { color: var(--st-archived); background-color: var(--st-archived-bg); }
+
+.pr-urgent { color: var(--pr-urgent); background-color: var(--pr-urgent-bg); }
+.pr-high   { color: var(--pr-high);   background-color: var(--pr-high-bg); }
+.pr-medium { color: var(--pr-medium); background-color: var(--pr-medium-bg); }
+.pr-low    { color: var(--pr-low);    background-color: var(--pr-low-bg); }
+
+/* link cells */
+.link-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 500; color: var(--text); text-decoration: none;
+  padding: 5px 10px; border-radius: 4px;
+  border: 1px solid var(--border2); background: var(--surface);
+  transition: all 0.15s; max-width: 100%;
+}
+.link-chip:hover { background: var(--surface2); border-color: var(--accent); }
+.link-chip svg { width: 14px; height: 14px; flex-shrink: 0; }
+.link-chip.clickup { color: #7b68ee; }
+.link-chip.drive .g-blue { color: #1a73e8; }
+.link-dash { color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 12px; padding-left: 4px; }
+.link-add {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500; color: var(--text3);
+  padding: 5px 9px; border-radius: 4px;
+  border: 1px dashed var(--border2); background: transparent; cursor: pointer;
   transition: all 0.15s;
 }
+.link-add:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+.link-add svg { width: 12px; height: 12px; }
+.drive-cell { display: flex; align-items: center; gap: 3px; }
+.link-edit {
+  opacity: 0; width: 20px; height: 20px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; color: var(--text3); font-size: 10px;
+  cursor: pointer; border-radius: 3px; transition: all 0.15s;
+}
+.p-row:hover .link-edit { opacity: 1; }
+.link-edit:hover { color: var(--accent); background: var(--accent-dim); }
 
-.p-cu-btn:hover { background: rgba(124,92,191,0.2); }
+/* add project row */
+.add-project {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px 10px 48px; border-top: 1px solid var(--border);
+  color: var(--text3); font-size: 12px; cursor: pointer; transition: all 0.15s;
+}
+.add-project:hover { color: var(--accent); background: var(--surface2); }
+.add-project svg { width: 14px; height: 14px; }
 
-.p-actions { display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
-.project-card:hover .p-actions { opacity: 1; }
-.project-card .icon-btn { width: 22px; height: 22px; font-size: 10px; }
-
-.empty-col { text-align: center; padding: 14px 8px; color: var(--text3); font-size: 10px; font-family: 'JetBrains Mono', monospace; }
+.tree-empty-goal { padding: 14px 16px 14px 48px; color: var(--text3); font-size: 12px; border-top: 1px solid var(--border); }
 
 /* ── EMPTY STATE ─────────────────────────────────────────── */
 .empty-state {
@@ -824,10 +708,19 @@ header {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+@media (max-width: 980px) {
+  .grid-cols { grid-template-columns: minmax(200px, 1fr) 132px 124px; }
+  .col-head > div:nth-child(4), .col-head > div:nth-child(5),
+  .p-cell:nth-child(4), .p-cell:nth-child(5) { display: none; }
+  .p-desc { display: none; }
+}
 @media (max-width: 680px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; }
-  .kanban-board { grid-template-columns: repeat(2,1fr); }
   .content { padding: 16px; }
 }
 
@@ -929,6 +822,19 @@ header {
       <button class="btn btn-surface btn-sm" id="pageAddGoalBtn">+ Add Goal</button>
     </div>
     <div class="stats-row" id="statsRow"></div>
+    <div class="tree-toolbar" id="treeToolbar">
+      <div class="pri-filter" id="priFilter">
+        <span class="pf-label">Priority</span>
+        <button class="pf-chip active" data-pri="all">All</button>
+        <button class="pf-chip" data-pri="urgent">Urgent</button>
+        <button class="pf-chip" data-pri="high">High</button>
+        <button class="pf-chip" data-pri="medium">Medium</button>
+        <button class="pf-chip" data-pri="low">Low</button>
+      </div>
+      <div class="toolbar-spacer"></div>
+      <label class="show-archived"><input type="checkbox" id="showArchivedToggle"> Show archived</label>
+      <button class="btn btn-ghost btn-sm" id="collapseAllBtn">Collapse all</button>
+    </div>
     <div id="goalsList"></div>
   </main>
 </div>
@@ -1067,6 +973,21 @@ header {
         </select>
       </div>
     </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-select" id="pPriority">
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Google Drive URL <span>(optional)</span></label>
+        <input class="form-input" id="pDriveUrl" placeholder="https://drive.google.com/…">
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-label">Description / Status Narrative</label>
       <textarea class="form-textarea" id="pDesc" placeholder="High-level description or current status update..."></textarea>
@@ -1159,8 +1080,27 @@ const COLORS = [
   '#5d6d7e','#922b21','#1a5276'
 ];
 
-const KANBAN_COLS = ['backlog','progress','blocked','done'];
+const STATUS_ORDER = ['backlog','progress','blocked','done','archived'];
 const STATUS_LABELS = { backlog:'Backlog', progress:'In Progress', blocked:'Blocked', done:'Done', archived:'Archived' };
+const ST_CLASS = { backlog:'st-backlog', progress:'st-progress', blocked:'st-blocked', done:'st-done', archived:'st-archived' };
+
+const PRIORITY_ORDER = ['urgent','high','medium','low'];
+const PRIORITY_LABELS = { urgent:'Urgent', high:'High', medium:'Medium', low:'Low' };
+const PR_CLASS = { urgent:'pr-urgent', high:'pr-high', medium:'pr-medium', low:'pr-low' };
+
+// Shared inline SVG icons for the tree (match the approved mockup)
+const SVG_CARET = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+const SVG_CARET_V = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+const SVG_CLICKUP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>`;
+const SVG_DRIVE = `<svg class="g-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+const SVG_PLUS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`;
+
+// Prepend https:// when a pasted Drive URL omits the scheme, so the anchor href resolves.
+function normalizeUrl(u) {
+  const s = String(u || '').trim();
+  if (!s) return '';
+  return /^https?:\/\//i.test(s) ? s : 'https://' + s;
+}
 
 // ═══════════════════════════════════════════════════════════
 // AUTH + API
@@ -1238,7 +1178,15 @@ let editingGoalId = null;
 let editingProjectId = null;
 let editingProjectGoalId = null;
 let selectedColor = COLORS[0];
-let showArchived = {};
+
+// ── Tree view state (persisted across re-renders) ──────────────
+// Collapsed groups are tracked by id so inline edits (status/priority/drive)
+// that trigger a full render() do not reset the open/closed tree state.
+let collapsedVerticals = new Set();   // vertical keys (vertical id or '__none__')
+let collapsedGoals     = new Set();   // goal ids
+let activePriorities   = new Set();   // empty => all priorities shown
+let showArchivedGlobal = false;       // single global toggle (default: hidden)
+let allCollapsed       = false;       // reflects the "Collapse all" button
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
@@ -1409,290 +1357,336 @@ function renderContent() {
     return;
   }
 
-  el.innerHTML = goals.map((g, idx) => {
-    const vert = S.verticals.find(x=>x.id===g.verticalId);
-    const vColor = vert ? vert.color : '#4a6080';
-    const projects = S.projects.filter(p=>p.goalId===g.id);
-    const activeCount = projects.filter(p=>p.status!=='archived').length;
-    const showArch = showArchived[g.id]||false;
+  // ── Group goals by vertical (in sidebar order; unassigned last) ──
+  const byVert = new Map();
+  goals.forEach(g => {
+    const key = g.verticalId || '__none__';
+    if (!byVert.has(key)) byVert.set(key, []);
+    byVert.get(key).push(g);
+  });
+  const groups = [];
+  S.verticals.forEach(vert => { if (byVert.has(vert.id)) groups.push({ vert, key: vert.id, goals: byVert.get(vert.id) }); });
+  if (byVert.has('__none__')) groups.push({ vert: null, key: '__none__', goals: byVert.get('__none__') });
 
-    // ClickUp folder link
-    const cuRow = g.cuFolderId
-      ? `<a class="cu-link-btn" href="https://app.clickup.com/t/${g.cuFolderId}" target="_blank">⬡ Open in ClickUp</a>`
-      : (vert&&vert.spaceId&&cuConnected ? `<span class="cu-pending">Folder not yet created — re-save this goal to sync</span>` : '');
+  const filtering = activePriorities.size > 0;
+  let goalIdx = 0;
 
-    const descPanel = (g.description||g.boundaries) ? `
-      <div class="goal-info-panel">
-        ${g.description?`<div class="info-block"><div class="info-block-label">Description</div><div class="info-block-text">${esc(g.description)}</div></div>`:''}
-        ${g.boundaries?`<div class="info-block"><div class="info-block-label">Boundaries</div><div class="info-block-text">${esc(g.boundaries)}</div></div>`:''}
-      </div>` : '';
+  const groupsHtml = groups.map(grp => {
+    // Build the goal blocks first so we know which verticals have visible content.
+    const goalBlocks = grp.goals.map(g => {
+      const idx = goalIdx++;
+      const all = S.projects.filter(p => p.goalId===g.id);
+      const visible = all.filter(projectPassesFilter);
+      const goalVisible = visible.length > 0 || (!filtering && all.length === 0);
+      return { g, idx, visible, goalVisible };
+    }).filter(b => b.goalVisible);
 
-    return `<div class="goal-card" data-goal-id="${g.id}" draggable="true">
-      <div class="goal-header">
-        <span class="goal-drag">⠿</span>
-        <span class="goal-num">#${idx+1}</span>
-        <div class="goal-body">
-          <div class="goal-name" style="border-left:3px solid ${vColor}">${esc(g.name)}</div>
-          <div class="goal-pills">
-            ${g.type==='deliverable'?'<span class="pill pill-deliverable">Deliverable</span>':'<span class="pill pill-timebox">Time-boxed</span>'}
-            ${g.date?`<span class="pill pill-date">${fmtDate(g.date)}${g.endDate?' → '+fmtDate(g.endDate):''}</span>`:''}
-            ${vert?`<span class="pill pill-vert"><span style="width:6px;height:6px;border-radius:1px;background:${vColor};display:inline-block"></span>${esc(vert.name)}</span>`:''}
-          </div>
-        </div>
-        <div class="goal-right">
-          <span class="goal-proj-count">${activeCount} project${activeCount!==1?'s':''}</span>
-          <div class="goal-actions">
-            <button class="icon-btn" data-edit-goal="${g.id}" title="Edit">✎</button>
-            <button class="icon-btn del" data-del-goal="${g.id}" title="Delete">✕</button>
-          </div>
-          <span class="chevron">▶</span>
-        </div>
+    if (!goalBlocks.length) return '';
+
+    const visGoalCt = goalBlocks.length;
+    const visProjCt = goalBlocks.reduce((a,b) => a + b.visible.length, 0);
+    const collapsed = collapsedVerticals.has(grp.key) ? ' collapsed' : '';
+    const color = grp.vert ? grp.vert.color : '#94a3b8';
+    const title = grp.vert ? esc(grp.vert.name) : 'Unassigned';
+    const codeHtml = grp.vert ? `<span class="code">${esc(grp.vert.code)}</span>` : '';
+
+    const goalsHtml = goalBlocks.map(b => renderGoalGroup(b.g, b.idx, b.visible)).join('');
+
+    return `<section class="v-group${collapsed}">
+      <div class="v-header" data-vkey="${esc(grp.key)}">
+        <span class="rail" style="background:${color}"></span>
+        <span class="caret">${SVG_CARET_V}</span>
+        <span class="v-title">${title} ${codeHtml}</span>
+        <span class="meta">
+          <span><span class="mono">${visGoalCt}</span> goal${visGoalCt!==1?'s':''}</span>
+          <span><span class="mono">${visProjCt}</span> project${visProjCt!==1?'s':''}</span>
+        </span>
       </div>
-      ${descPanel}
-      ${cuRow ? `<div class="cu-link-row">${cuRow}</div>` : ''}
-      <div class="projects-panel">
-        <div class="kanban-toolbar">
-          <div style="display:flex;align-items:center;gap:10px">
-            <button class="btn btn-surface btn-sm" data-add-project="${g.id}">+ Add Project</button>
-            <label class="archived-toggle">
-              <input type="checkbox" ${showArch?'checked':''} data-archived-toggle="${g.id}"> Show archived
-            </label>
-          </div>
-        </div>
-        <div class="kanban-board" data-kanban-goal="${g.id}">
-          ${KANBAN_COLS.map(status => {
-            const colPs = projects.filter(p=>p.status===status);
-            const archPs = showArch ? projects.filter(p=>p.status==='archived') : [];
-            const showArchInDone = status==='done' && archPs.length;
-            return `<div class="kanban-col col-${status}">
-              <div class="kanban-col-header">
-                <span class="col-label">${STATUS_LABELS[status]}</span>
-                <span class="col-count">${colPs.length}</span>
-              </div>
-              <div class="kanban-cards" data-cards-status="${status}" data-cards-goal="${g.id}">
-                ${colPs.map(p=>renderProjectCard(p)).join('')}
-                ${!colPs.length&&!showArchInDone?'<div class="empty-col">—</div>':''}
-                ${showArchInDone?archPs.map(p=>renderProjectCard(p,true)).join(''):''}
-              </div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-    </div>`;
+      <div class="v-body">${goalsHtml}</div>
+    </section>`;
   }).join('');
 
-  bindGoalEvents(el);
-  setupGoalDrag();
-  setupCardDrag();
+  el.innerHTML = `<div class="tree">
+    <div class="grid-cols col-head">
+      <div>Vertical · Goal · Project</div>
+      <div>Status</div>
+      <div>Priority</div>
+      <div></div>
+      <div></div>
+    </div>
+    ${groupsHtml}
+  </div>`;
+
+  bindTreeEvents(el);
 }
 
-function renderProjectCard(p, isArch=false) {
-  const cuBtn = p.cuListId
-    ? `<a class="p-cu-btn" href="https://app.clickup.com/t/${p.cuListId}" target="_blank">⬡</a>`
+// A project passes the current view filters when it is not a hidden archived
+// row and it matches the active priority chip selection (empty selection = all).
+function projectPassesFilter(p) {
+  if ((p.status||'backlog') === 'archived' && !showArchivedGlobal) return false;
+  if (activePriorities.size > 0 && !activePriorities.has(p.priority || 'medium')) return false;
+  return true;
+}
+
+function renderGoalGroup(g, idx, visibleProjects) {
+  const badge = g.code ? esc(g.code) : `#${idx+1}`;
+  const collapsed = collapsedGoals.has(g.id) ? ' collapsed' : '';
+  const ct = visibleProjects.length;
+  const descHtml = g.description
+    ? `<span class="g-sep">|</span><span class="g-desc">${esc(g.description)}</span>`
     : '';
-  return `<div class="project-card ${isArch?'archived-card':''}" data-project-id="${p.id}" draggable="true">
-    <div class="p-code">${esc(p.fullCode||'')}</div>
-    <div class="p-name">${esc(p.name)}</div>
-    ${p.description?`<div class="p-desc">${esc(p.description)}</div>`:''}
-    <div class="p-footer">
-      <div class="p-footer-left">
-        ${p.type?`<span class="type-tag">${esc(p.type)}</span>`:''}
-        ${cuBtn}
-      </div>
-      <div class="p-actions">
-        <button class="icon-btn" data-edit-project="${p.id}" title="Edit">✎</button>
-        <button class="icon-btn del" data-del-project="${p.id}" title="Delete">✕</button>
-      </div>
+
+  const rowsHtml = visibleProjects.map(renderProjectRow).join('') ||
+    `<div class="tree-empty-goal">No projects yet.</div>`;
+
+  return `<div class="g-group${collapsed}">
+    <div class="g-header" data-goal-collapse="${g.id}">
+      <span class="caret">${SVG_CARET}</span>
+      <span class="g-badge">${badge}</span>
+      <span class="g-name">${esc(g.name)}</span>
+      ${descHtml}
+      <span class="g-count">${ct} project${ct!==1?'s':''}</span>
+      <span class="g-tools">
+        <button class="g-tool" data-goal-edit="${g.id}" title="Edit goal" aria-label="Edit goal">✎</button>
+        <button class="g-tool g-tool-del" data-goal-del="${g.id}" title="Delete goal" aria-label="Delete goal">✕</button>
+      </span>
+    </div>
+    <div class="g-body">
+      ${rowsHtml}
+      <div class="add-project" data-add-project="${g.id}">${SVG_PLUS}Add project to ${esc(g.name)}</div>
     </div>
   </div>`;
 }
 
-function bindGoalEvents(el) {
-  el.querySelectorAll('.goal-header').forEach(h => {
-    h.addEventListener('click', e => {
-      if (e.target.closest('[data-edit-goal],[data-del-goal]')) return;
-      h.closest('.goal-card').classList.toggle('expanded');
+function renderProjectRow(p) {
+  const status = p.status || 'backlog';
+  const priority = p.priority || 'medium';
+  const isArch = status === 'archived';
+
+  const statusOpts = STATUS_ORDER.map(s =>
+    `<option value="${s}" ${s===status?'selected':''}>${STATUS_LABELS[s]}</option>`).join('');
+  const priorityOpts = PRIORITY_ORDER.map(s =>
+    `<option value="${s}" ${s===priority?'selected':''}>${PRIORITY_LABELS[s]}</option>`).join('');
+
+  const clickupCell = p.cuListId
+    ? `<a class="link-chip clickup" href="https://app.clickup.com/t/${esc(p.cuListId)}" target="_blank" rel="noopener" title="Open ClickUp list">${SVG_CLICKUP}ClickUp</a>`
+    : `<span class="link-dash" aria-hidden="true">—</span>`;
+
+  const driveCell = p.driveUrl
+    ? `<div class="drive-cell">
+         <a class="link-chip drive" href="${esc(normalizeUrl(p.driveUrl))}" target="_blank" rel="noopener" title="Open Drive folder">${SVG_DRIVE}Drive</a>
+         <button class="link-edit" data-drive-edit="${p.id}" title="Edit Drive link" aria-label="Edit Drive link">✎</button>
+       </div>`
+    : `<button class="link-add" data-drive-add="${p.id}" title="Add Google Drive link">${SVG_PLUS}Add</button>`;
+
+  const descHtml = p.description ? `<div class="p-desc">${esc(p.description)}</div>` : '';
+
+  return `<div class="grid-cols p-row${isArch?' archived-row':''}">
+    <div class="p-name-cell">
+      <div class="p-info">
+        <div class="p-title">
+          <button class="p-open" data-project-edit="${p.id}" title="Edit project">
+            <span class="p-code">${esc(p.fullCode||'')}</span>
+            <span class="p-label">${esc(p.name)}</span>
+          </button>
+        </div>
+        ${descHtml}
+      </div>
+      <button class="p-del" data-project-del="${p.id}" title="Delete project" aria-label="Delete project">✕</button>
+    </div>
+    <div class="p-cell"><div class="sel-wrap"><select class="pill-select ${ST_CLASS[status]}" data-status-project="${p.id}" aria-label="Status">${statusOpts}</select></div></div>
+    <div class="p-cell"><div class="sel-wrap"><select class="pill-select ${PR_CLASS[priority]}" data-priority-project="${p.id}" aria-label="Priority">${priorityOpts}</select></div></div>
+    <div class="p-cell">${clickupCell}</div>
+    <div class="p-cell">${driveCell}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TREE EVENTS
+// ═══════════════════════════════════════════════════════════
+function bindTreeEvents(el) {
+  // Vertical collapse/expand (toggle class + persist in the collapsed set)
+  el.querySelectorAll('.v-header').forEach(h => {
+    h.addEventListener('click', () => {
+      const key = h.dataset.vkey;
+      const now = h.closest('.v-group').classList.toggle('collapsed');
+      if (now) collapsedVerticals.add(key); else collapsedVerticals.delete(key);
     });
   });
 
-  el.querySelectorAll('[data-edit-goal]').forEach(b => {
-    b.addEventListener('click', e => { e.stopPropagation(); openGoalModal(b.dataset.editGoal); });
+  // Goal collapse/expand (ignore clicks on the edit/delete tools)
+  el.querySelectorAll('.g-header').forEach(h => {
+    h.addEventListener('click', e => {
+      if (e.target.closest('[data-goal-edit],[data-goal-del]')) return;
+      const id = h.dataset.goalCollapse;
+      const now = h.closest('.g-group').classList.toggle('collapsed');
+      if (now) collapsedGoals.add(id); else collapsedGoals.delete(id);
+    });
   });
 
-  el.querySelectorAll('[data-del-goal]').forEach(b => {
+  // Inline status dropdown
+  el.querySelectorAll('[data-status-project]').forEach(sel => {
+    sel.addEventListener('change', () => setProjectStatus(sel.dataset.statusProject, sel.value));
+  });
+
+  // Inline priority dropdown
+  el.querySelectorAll('[data-priority-project]').forEach(sel => {
+    sel.addEventListener('change', () => setProjectPriority(sel.dataset.priorityProject, sel.value));
+  });
+
+  // Drive add / edit
+  el.querySelectorAll('[data-drive-add],[data-drive-edit]').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      setProjectDrive(b.dataset.driveAdd || b.dataset.driveEdit);
+    });
+  });
+
+  // Project edit (click title) / delete
+  el.querySelectorAll('[data-project-edit]').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openProjectModal(b.dataset.projectEdit); });
+  });
+  el.querySelectorAll('[data-project-del]').forEach(b => {
     b.addEventListener('click', async e => {
       e.stopPropagation();
-      const id = b.dataset.delGoal;
-      const pc = S.projects.filter(p=>p.goalId===id).length;
-      if (confirm(`Delete this goal${pc?' and its '+pc+' project(s)':''}?`)) {
-        try {
-          await apiFetch('DELETE', `/api/goals?id=${id}`);
-          S.goals = S.goals.filter(g=>g.id!==id);
-          S.projects = S.projects.filter(p=>p.goalId!==id);
-          render(); toast('Goal deleted');
-        } catch(e) {
-          toast(`Failed to delete goal: ${e.message}`, 'error');
-        }
+      const id = b.dataset.projectDel;
+      if (!confirm('Delete this project?')) return;
+      try {
+        await apiFetch('DELETE', `/api/projects?id=${id}`);
+        S.projects = S.projects.filter(p=>p.id!==id);
+        render(); toast('Project deleted');
+      } catch(err) {
+        toast(`Failed to delete project: ${err.message}`, 'error');
       }
     });
   });
 
+  // Add project to a goal
   el.querySelectorAll('[data-add-project]').forEach(b => {
     b.addEventListener('click', e => { e.stopPropagation(); openProjectModal(null, b.dataset.addProject); });
   });
 
-  el.querySelectorAll('[data-edit-project]').forEach(b => {
-    b.addEventListener('click', e => { e.stopPropagation(); openProjectModal(b.dataset.editProject); });
+  // Goal edit / delete
+  el.querySelectorAll('[data-goal-edit]').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); openGoalModal(b.dataset.goalEdit); });
   });
-
-  el.querySelectorAll('[data-del-project]').forEach(b => {
+  el.querySelectorAll('[data-goal-del]').forEach(b => {
     b.addEventListener('click', async e => {
       e.stopPropagation();
-      const id = b.dataset.delProject;
-      if (confirm('Delete this project?')) {
-        try {
-          await apiFetch('DELETE', `/api/projects?id=${id}`);
-          S.projects = S.projects.filter(p=>p.id!==id);
-          render(); toast('Project deleted');
-        } catch(e) {
-          toast(`Failed to delete project: ${e.message}`, 'error');
-        }
+      const id = b.dataset.goalDel;
+      const pc = S.projects.filter(p=>p.goalId===id).length;
+      if (!confirm(`Delete this goal${pc?' and its '+pc+' project(s)':''}?`)) return;
+      try {
+        await apiFetch('DELETE', `/api/goals?id=${id}`);
+        S.goals = S.goals.filter(g=>g.id!==id);
+        S.projects = S.projects.filter(p=>p.goalId!==id);
+        collapsedGoals.delete(id);
+        render(); toast('Goal deleted');
+      } catch(err) {
+        toast(`Failed to delete goal: ${err.message}`, 'error');
       }
-    });
-  });
-
-  el.querySelectorAll('[data-archived-toggle]').forEach(cb => {
-    cb.addEventListener('change', e => {
-      e.stopPropagation();
-      showArchived[cb.dataset.archivedToggle] = cb.checked;
-      const exp = getExpanded();
-      render();
-      restoreExpanded(exp);
-      setTimeout(() => {
-        const c = document.querySelector(`[data-goal-id="${cb.dataset.archivedToggle}"]`);
-        if (c) c.classList.add('expanded');
-      }, 10);
     });
   });
 }
 
 // ═══════════════════════════════════════════════════════════
-// DRAG
+// INLINE PROJECT EDITS (status / priority / drive)
 // ═══════════════════════════════════════════════════════════
-let dragGoalId = null, dragCardId = null;
-
-function getExpanded() {
-  return [...document.querySelectorAll('.goal-card.expanded')].map(c=>c.dataset.goalId);
+async function setProjectStatus(id, newStatus) {
+  const p = S.projects.find(x=>x.id===id);
+  if (!p || p.status === newStatus) return;
+  const old = p.status;
+  p.status = newStatus;          // optimistic — re-render preserves collapse + filter
+  render();
+  try {
+    // Single-item PUT so the server can run the ClickUp archive side-effect on →archived.
+    const updated = await apiFetch('PUT', `/api/projects?id=${id}`, { status: newStatus });
+    if (updated) { const i = S.projects.findIndex(x=>x.id===id); if (i!==-1) S.projects[i] = updated; }
+  } catch(err) {
+    p.status = old; render();
+    toast(`Failed to update status: ${err.message}`, 'error');
+  }
 }
 
-function restoreExpanded(ids) {
-  ids.forEach(id => {
-    const c = document.querySelector(`[data-goal-id="${id}"]`);
-    if (c) c.classList.add('expanded');
-  });
+async function setProjectPriority(id, newPriority) {
+  const p = S.projects.find(x=>x.id===id);
+  if (!p || (p.priority||'medium') === newPriority) return;
+  const old = p.priority;
+  p.priority = newPriority;      // optimistic
+  render();
+  try {
+    const updated = await apiFetch('PUT', `/api/projects?id=${id}`, { priority: newPriority });
+    if (updated) { const i = S.projects.findIndex(x=>x.id===id); if (i!==-1) S.projects[i] = updated; }
+  } catch(err) {
+    p.priority = old; render();
+    toast(`Failed to update priority: ${err.message}`, 'error');
+  }
 }
 
-function setupGoalDrag() {
-  document.querySelectorAll('.goal-card').forEach(card => {
-    card.addEventListener('dragstart', e => {
-      if (e.target.closest('.project-card')) return;
-      dragGoalId = card.dataset.goalId; dragCardId = null;
-      setTimeout(() => card.classList.add('dragging'), 0);
-    });
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      document.querySelectorAll('.goal-card').forEach(c=>c.classList.remove('drag-over'));
-    });
-    card.addEventListener('dragover', e => { if(dragCardId) return; e.preventDefault(); card.classList.add('drag-over'); });
-    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-    card.addEventListener('drop', async e => {
-      if (dragCardId) return;
-      e.preventDefault(); card.classList.remove('drag-over');
-      const tid = card.dataset.goalId;
-      if (dragGoalId && tid && dragGoalId !== tid) {
-        const si = S.goals.findIndex(g=>g.id===dragGoalId);
-        const ti = S.goals.findIndex(g=>g.id===tid);
-        if (si!==-1&&ti!==-1) {
-          const exp = getExpanded();
-          const [m] = S.goals.splice(si,1);
-          S.goals.splice(ti,0,m);
-          render(); restoreExpanded(exp);
-          apiFetch('PUT', '/api/goals?action=reorder', { ids: S.goals.map(g=>g.id) })
-            .catch(() => toast('Reorder sync failed — refresh to restore', 'warn'));
-        }
-      }
-    });
-  });
+async function setProjectDrive(id) {
+  const p = S.projects.find(x=>x.id===id);
+  if (!p) return;
+  const current = p.driveUrl || '';
+  const input = prompt(`Google Drive URL for ${p.fullCode || p.name}:\n(leave blank to remove)`, current);
+  if (input === null) return;                       // cancelled
+  const trimmed = input.trim();
+  const driveUrl = trimmed ? normalizeUrl(trimmed) : null;
+  if ((p.driveUrl || null) === driveUrl) return;    // no change
+  const old = p.driveUrl;
+  p.driveUrl = driveUrl;         // optimistic
+  render();
+  try {
+    // Send null to clear, or the URL string to set. Partial update: only driveUrl.
+    const updated = await apiFetch('PUT', `/api/projects?id=${id}`, { driveUrl: driveUrl });
+    if (updated) { const i = S.projects.findIndex(x=>x.id===id); if (i!==-1) S.projects[i] = updated; }
+    toast(driveUrl ? 'Drive link saved' : 'Drive link removed', 'success');
+  } catch(err) {
+    p.driveUrl = old; render();
+    toast(`Failed to update Drive link: ${err.message}`, 'error');
+  }
 }
 
-function setupCardDrag() {
-  document.querySelectorAll('.project-card').forEach(card => {
-    card.addEventListener('dragstart', e => {
-      e.stopPropagation();
-      dragCardId = card.dataset.projectId; dragGoalId = null;
-      setTimeout(() => card.classList.add('card-dragging'), 0);
-    });
-    card.addEventListener('dragend', () => {
-      card.classList.remove('card-dragging');
-      document.querySelectorAll('.kanban-cards').forEach(c=>c.classList.remove('drag-over-col'));
-      document.querySelectorAll('.project-card').forEach(c=>c.classList.remove('card-drag-over'));
-    });
-    card.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); card.classList.add('card-drag-over'); });
-    card.addEventListener('dragleave', () => card.classList.remove('card-drag-over'));
-    card.addEventListener('drop', async e => {
-      e.preventDefault(); e.stopPropagation(); card.classList.remove('card-drag-over');
-      if (dragCardId && card.dataset.projectId && dragCardId !== card.dataset.projectId) {
-        const si = S.projects.findIndex(p=>p.id===dragCardId);
-        const ti = S.projects.findIndex(p=>p.id===card.dataset.projectId);
-        if (si!==-1&&ti!==-1) {
-          const newStatus = S.projects[ti].status;
-          S.projects[si].status = newStatus;
-          const [m] = S.projects.splice(si,1);
-          S.projects.splice(ti,0,m);
-          const exp = getExpanded(); render(); restoreExpanded(exp);
-          if (newStatus === 'archived') {
-            apiFetch('PUT', `/api/projects?id=${m.id}`, { status: 'archived' })
-              .then(updated => { if (updated) { const idx = S.projects.findIndex(p=>p.id===updated.id); if (idx!==-1) S.projects[idx]=updated; } })
-              .catch(() => toast('Sync failed — refresh to restore', 'warn'));
-          } else {
-            const goalId = m.goalId;
-            const goalProjects = S.projects.filter(p=>p.goalId===goalId);
-            apiFetch('PUT', '/api/projects?action=reorder', {
-              updates: goalProjects.map((p,i) => ({ id: p.id, status: p.status, sortOrder: i }))
-            }).catch(() => toast('Reorder sync failed — refresh to restore', 'warn'));
-          }
-        }
-      }
-    });
+// ═══════════════════════════════════════════════════════════
+// TREE TOOLBAR (priority filter · show archived · collapse all)
+// ═══════════════════════════════════════════════════════════
+// Priority chip filter — "All" clears the set; other chips multi-select toggle.
+document.getElementById('priFilter').addEventListener('click', e => {
+  const chip = e.target.closest('.pf-chip');
+  if (!chip) return;
+  const val = chip.dataset.pri;
+  if (val === 'all') {
+    activePriorities.clear();
+  } else {
+    activePriorities.has(val) ? activePriorities.delete(val) : activePriorities.add(val);
+  }
+  document.querySelectorAll('#priFilter .pf-chip').forEach(c => {
+    if (c.dataset.pri === 'all') c.classList.toggle('active', activePriorities.size === 0);
+    else c.classList.toggle('active', activePriorities.has(c.dataset.pri));
   });
+  renderContent();
+});
 
-  document.querySelectorAll('.kanban-cards').forEach(col => {
-    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over-col'); });
-    col.addEventListener('dragleave', () => col.classList.remove('drag-over-col'));
-    col.addEventListener('drop', async e => {
-      e.preventDefault(); col.classList.remove('drag-over-col');
-      if (!dragCardId) return;
-      const ns = col.dataset.cardsStatus;
-      const proj = S.projects.find(p=>p.id===dragCardId);
-      if (proj && ns && proj.status !== ns) {
-        const oldStatus = proj.status;
-        proj.status = ns;
-        const exp = getExpanded(); render(); restoreExpanded(exp);
-        if (ns === 'archived') {
-          // Use single-item PUT so server handles ClickUp archive side-effect
-          apiFetch('PUT', `/api/projects?id=${proj.id}`, { status: 'archived' })
-            .then(updated => { if (updated) { const idx = S.projects.findIndex(p=>p.id===updated.id); if (idx!==-1) S.projects[idx]=updated; } })
-            .catch(() => { proj.status = oldStatus; toast('Sync failed — refresh to restore', 'warn'); });
-        } else {
-          const goalProjects = S.projects.filter(p=>p.goalId===proj.goalId);
-          apiFetch('PUT', '/api/projects?action=reorder', {
-            updates: goalProjects.map((p,i) => ({ id: p.id, status: p.status, sortOrder: i }))
-          }).catch(() => toast('Reorder sync failed — refresh to restore', 'warn'));
-        }
-      }
-    });
-  });
-}
+// Global "Show archived" toggle
+document.getElementById('showArchivedToggle').addEventListener('change', e => {
+  showArchivedGlobal = e.target.checked;
+  renderContent();
+});
+
+// Collapse all / Expand all
+document.getElementById('collapseAllBtn').addEventListener('click', () => {
+  allCollapsed = !allCollapsed;
+  if (allCollapsed) {
+    // Collapse every currently-known vertical and goal.
+    S.verticals.forEach(v => collapsedVerticals.add(v.id));
+    collapsedVerticals.add('__none__');
+    S.goals.forEach(g => collapsedGoals.add(g.id));
+  } else {
+    collapsedVerticals.clear();
+    collapsedGoals.clear();
+  }
+  document.getElementById('collapseAllBtn').textContent = allCollapsed ? 'Expand all' : 'Collapse all';
+  renderContent();
+});
 
 // ═══════════════════════════════════════════════════════════
 // VERTICAL MODAL
@@ -1946,6 +1940,8 @@ function openProjectModal(projectId=null, goalId=null) {
   document.getElementById('pName').value = p ? p.name : '';
   document.getElementById('pDesc').value = p ? (p.description||'') : '';
   document.getElementById('pStatus').value = p ? p.status : 'backlog';
+  document.getElementById('pPriority').value = p ? (p.priority||'medium') : 'medium';
+  document.getElementById('pDriveUrl').value = p ? (p.driveUrl||'') : '';
   refreshProjectTypes(p ? p.type : '');
   // Pre-select the default template only when creating a new project
   refreshProjectTemplates(!projectId);
@@ -1991,6 +1987,8 @@ document.getElementById('pSave').addEventListener('click', async () => {
     description: document.getElementById('pDesc').value.trim(),
     type: document.getElementById('pType').value,
     status: document.getElementById('pStatus').value,
+    priority: document.getElementById('pPriority').value,
+    driveUrl: document.getElementById('pDriveUrl').value.trim() || null,
   };
 
   document.getElementById('pSaveLabel').textContent = 'Saving…';
@@ -1998,7 +1996,6 @@ document.getElementById('pSave').addEventListener('click', async () => {
   document.getElementById('pSave').disabled = true;
 
   try {
-    const exp = getExpanded();
     if (editingProjectId) {
       const result = await apiFetch('PUT', `/api/projects?id=${editingProjectId}`, data);
       if (!result) return;
@@ -2009,10 +2006,13 @@ document.getElementById('pSave').addEventListener('click', async () => {
       const result = await apiFetch('POST', '/api/projects', createData);
       if (!result) return;
       S.projects.push(result);
-      exp.push(goalId);
+      // Make sure the new project is visible: expand its goal and vertical.
+      const newGoal = S.goals.find(g => g.id === goalId);
+      collapsedGoals.delete(goalId);
+      if (newGoal) collapsedVerticals.delete(newGoal.verticalId || '__none__');
     }
     document.getElementById('projectModal').style.display = 'none';
-    render(); restoreExpanded(exp);
+    render();
     toast(editingProjectId?'Project updated':'Project created', 'success');
   } catch(e) {
     toast(`Failed to save project: ${e.message}`, 'error');

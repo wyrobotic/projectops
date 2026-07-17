@@ -1,0 +1,37 @@
+{
+  "file_hashes": {
+    ".claude/hooks/vexp-guard.sh": "1c4253ea6a0cc7ef65e952a67146b91a7d8b0a42f027e279d1a9f6c579e14614",
+    ".claude/skills/ui-ux-pro-max/scripts/core.py": "1166b0c09ae4fd1915ff5bdfb2f905367b1253a24626d01987ab021b09aa0c63",
+    ".claude/skills/ui-ux-pro-max/scripts/design_system.py": "ad0cfdc4b38d498935ae923c3aa70098c6f2d6877b6306a916b68ff2c7e2488b",
+    ".claude/skills/ui-ux-pro-max/scripts/search.py": "36004f9fb4f051803f619d7aa17e76bde0179c03bff7ded03c26052749246597",
+    "CLAUDE.md": "d55c0911d54eebec3249730dacdba82e8fc79cf3c088b4e8a006683787257708",
+    "DEPLOYMENT.md": "e813d4f51a5fadf0446be732a1d2a216bce41d9f4cde7145fabbbe7873e991ff",
+    "_tmp-migrate.mjs": "d6390f5b88da670c82bbbe3d7ef38e7462d5e283acaa0c3ab0b6b6280fdeee3c",
+    "_tmp-schema-run.mjs": "100eded088c393d1ec28f53343127696485e8752fc051db1a9cb20f976672e89",
+    "api/_auth.js": "24a94a8623e24d686f17b4be56b54abcf7118d8a7e9262cc03035d5f2421db5a",
+    "api/_utils.js": "e069f50a0ebb6b8cd71151c058573723e5118d68281648dd442a2e7de16d1f2f",
+    "api/clickup.js": "f8a031e176a3e3a18989c2cf504df50ab31b5df0929957de0ed89d848b51e5e7",
+    "api/config.js": "2a2397d528a5dc05e55146d74798da75f2715448643e627624d1db353fb86bb5",
+    "api/goals.js": "de657c209497a4a7d85fcbc84c35a05f8336384783e635b9c4332e97d3b0285b",
+    "api/list-templates.js": "3871bade40ffb975185cfbaa26dd81e8872cbd14e7ba6490d8ee1d804eec78c2",
+    "api/project-types.js": "03866b7f3a652ba43207d3ebc196e94cb6b9f0e4e84da4ea25dd7e05a1b18606",
+    "api/projects.js": "d6fcf7a9f60238a5d3e7ff489624ced3e3cf8b0dc647802ad9e7c58855d8485a",
+    "api/verticals.js": "0513de6a8fefb7702f967668d767fa18ca42e27d57b743b4964d638046976ac5",
+    "codebase-context.md": "933c77896d5366b714f77528c9644f2c3e8633702ad0900b07776a4e88acb35f",
+    "docs/architecture/AUTH_DATABASE_MIGRATION.md": "e85b416e35901ba73cb25afa4ccc349849ddf0a0c604662f6b07fb9fd5b57c05",
+    "docs/architecture/migrations/2026-07-17-add-project-priority-drive-url.sql": "4dc3068eb9354545b3472cc99b03b3b85dbd56a14f894b543a2cf0d7bcf05044",
+    "docs/architecture/schema.sql": "8a39a9efcb70aadee724d3e70e42a1bf94454261d0009be9cd8b72f6fb006bdb",
+    "docs/preparation/AUTH_DATABASE_MIGRATION.md": "a56f76876c51e0e90b69a85ac2c753d33030641466fbb7b499d088a791dc09d5",
+    "docs/sessions/2026-07-07-list-templates-and-silo-deployment.md": "79866f49cdb0000ec67d8ce0eb23a6ec73585c296de8e5ec3d0e8ace0d10888c",
+    "docs/sessions/2026-07-10-clickup-oneway-sync.md": "ef40deedc41aceea99df925acf20e627cd8d4f45c6afbecfdd48e3c30fd1ec16"
+  },
+  "indexed_at_commit": "8e4f9156fb2a66f0963e3948a466098a087e255a",
+  "indexed_at_timestamp": "2026-07-17T19:55:24.846832+00:00",
+  "schema_version": 3,
+  "stats": {
+    "total_edges": 265,
+    "total_files": 24,
+    "total_nodes": 251
+  },
+  "vexp_version": "2.2.2"
+}

@@ -11,6 +11,7 @@ import { requireAuth } from './_auth.js';
 import { uid, isoWeekNumber, mapProject } from './_utils.js';
 
 const VALID_STATUSES = ['backlog', 'progress', 'blocked', 'done', 'archived'];
+const VALID_PRIORITIES = ['urgent', 'high', 'medium', 'low'];
 
 export default async function handler(req, res) {
   const auth = await requireAuth(req);
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
       if (filterGoalId) {
         rows = await sql`
           SELECT id, goal_id, code_base, code_prefix, full_code, descriptor,
-                 name, description, type, status, cu_list_id, sort_order
+                 name, description, type, status, priority, drive_url, cu_list_id, sort_order
           FROM projects
           WHERE goal_id = ${filterGoalId}
           ORDER BY sort_order ASC
@@ -34,7 +35,7 @@ export default async function handler(req, res) {
       } else {
         rows = await sql`
           SELECT id, goal_id, code_base, code_prefix, full_code, descriptor,
-                 name, description, type, status, cu_list_id, sort_order
+                 name, description, type, status, priority, drive_url, cu_list_id, sort_order
           FROM projects
           ORDER BY sort_order ASC
         `;
@@ -51,6 +52,8 @@ export default async function handler(req, res) {
         description = '',
         type        = '',
         status      = 'backlog',
+        priority    = 'medium',
+        driveUrl    = null,
         templateId,          // optional ClickUp list-template id (cuTemplateId); used only at list-creation time
       } = req.body || {};
 
@@ -63,6 +66,12 @@ export default async function handler(req, res) {
       if (status && !VALID_STATUSES.includes(status)) {
         return res.status(400).json({ error: `status must be one of: ${VALID_STATUSES.join(', ')}` });
       }
+      if (priority && !VALID_PRIORITIES.includes(priority)) {
+        return res.status(400).json({ error: `priority must be one of: ${VALID_PRIORITIES.join(', ')}` });
+      }
+
+      // Nullable Google Drive folder URL — coerce empty string to null.
+      const newDriveUrl = driveUrl && driveUrl.trim() ? driveUrl.trim() : null;
 
       const newId = uid();
       const now   = new Date();
@@ -191,12 +200,12 @@ export default async function handler(req, res) {
       const inserted = await sql`
         INSERT INTO projects
           (id, goal_id, code_base, code_prefix, full_code, descriptor,
-           name, description, type, status, cu_list_id, sort_order)
+           name, description, type, status, priority, drive_url, cu_list_id, sort_order)
         VALUES
           (${newId}, ${goalId}, ${codeBase}, ${prefix}, ${fullCode}, ${descriptor.trim()},
-           ${name.trim()}, ${description}, ${type}, ${status}, ${cuListId}, ${sortOrder})
+           ${name.trim()}, ${description}, ${type}, ${status}, ${priority}, ${newDriveUrl}, ${cuListId}, ${sortOrder})
         RETURNING id, goal_id, code_base, code_prefix, full_code, descriptor,
-                  name, description, type, status, cu_list_id, sort_order
+                  name, description, type, status, priority, drive_url, cu_list_id, sort_order
       `;
 
       return res.status(201).json(mapProject(inserted[0]));
@@ -238,7 +247,7 @@ export default async function handler(req, res) {
     if (req.method === 'PUT' && id) {
       const existing = await sql`
         SELECT id, goal_id, code_base, code_prefix, full_code, descriptor,
-               name, description, type, status, cu_list_id, sort_order
+               name, description, type, status, priority, drive_url, cu_list_id, sort_order
         FROM projects WHERE id = ${id}
       `;
       if (existing.length === 0) {
@@ -254,9 +263,16 @@ export default async function handler(req, res) {
       const newDescription = body.description !== undefined ? body.description             : cur.description;
       const newType        = body.type        !== undefined ? body.type                    : cur.type;
       const newStatus      = body.status      !== undefined ? body.status                  : cur.status;
+      const newPriority    = body.priority    !== undefined ? body.priority                 : cur.priority;
+      const newDriveUrl    = body.driveUrl    !== undefined
+        ? (body.driveUrl && body.driveUrl.trim() ? body.driveUrl.trim() : null)
+        : cur.drive_url;
 
       if (newStatus && !VALID_STATUSES.includes(newStatus)) {
         return res.status(400).json({ error: `status must be one of: ${VALID_STATUSES.join(', ')}` });
+      }
+      if (newPriority && !VALID_PRIORITIES.includes(newPriority)) {
+        return res.status(400).json({ error: `priority must be one of: ${VALID_PRIORITIES.join(', ')}` });
       }
 
       // When descriptor changes, recompute full_code from the stored code_base.
@@ -299,11 +315,13 @@ export default async function handler(req, res) {
           description = ${newDescription},
           type        = ${newType},
           status      = ${newStatus},
+          priority    = ${newPriority},
+          drive_url   = ${newDriveUrl},
           full_code   = ${newFullCode},
           updated_at  = NOW()
         WHERE id = ${id}
         RETURNING id, goal_id, code_base, code_prefix, full_code, descriptor,
-                  name, description, type, status, cu_list_id, sort_order
+                  name, description, type, status, priority, drive_url, cu_list_id, sort_order
       `;
 
       // One-way sync: propagate descriptor/description changes to the ClickUp List (non-fatal).

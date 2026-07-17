@@ -61,6 +61,8 @@ export function mapProject(row) {
     description: row.description,
     type:        row.type,
     status:      row.status,
+    priority:    row.priority,
+    driveUrl:    row.drive_url,
     cuListId:    row.cu_list_id,
     sortOrder:   row.sort_order,
   };
