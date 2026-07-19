@@ -1194,6 +1194,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 // CLICKUP API
 // ═══════════════════════════════════════════════════════════
 let cuConnected = false;
+let cuTeamId = null;
 
 async function cuCall(method, path, body = null) {
   const opts = {
@@ -1214,6 +1215,19 @@ async function checkCuConnection() {
     cuConnected = true;
     document.getElementById('cuDot').className = 'cu-dot connected';
     document.getElementById('cuStatusText').textContent = 'ClickUp ✓';
+    // Resolve this instance's team id for List deep-links. Non-fatal.
+    if (!cuTeamId) {
+      try {
+        const data = await cuCall('GET', '/team');
+        const teamId = data.teams?.[0]?.id;
+        if (teamId) {
+          cuTeamId = String(teamId);
+          render(); // upgrade ClickUp hrefs from fallback to real List URLs
+        }
+      } catch(teamErr) {
+        console.warn('[checkCuConnection] team lookup failed:', teamErr);
+      }
+    }
   } catch(e) {
     cuConnected = false;
     document.getElementById('cuDot').className = 'cu-dot error';
@@ -1231,7 +1245,9 @@ function cuFolderUrl(folderId) {
 }
 
 function cuListUrl(listId) {
-  return `https://app.clickup.com/`;
+  return cuTeamId
+    ? `https://app.clickup.com/${cuTeamId}/v/li/${listId}`
+    : `https://app.clickup.com/t/${listId}`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1359,8 +1375,9 @@ function renderContent() {
 
   // ── Group goals by vertical (in sidebar order; unassigned last) ──
   const byVert = new Map();
+  const validIds = new Set(S.verticals.map(v => v.id));
   goals.forEach(g => {
-    const key = g.verticalId || '__none__';
+    const key = validIds.has(g.verticalId) ? g.verticalId : '__none__';
     if (!byVert.has(key)) byVert.set(key, []);
     byVert.get(key).push(g);
   });
@@ -1377,7 +1394,7 @@ function renderContent() {
       const idx = goalIdx++;
       const all = S.projects.filter(p => p.goalId===g.id);
       const visible = all.filter(projectPassesFilter);
-      const goalVisible = visible.length > 0 || (!filtering && all.length === 0);
+      const goalVisible = filtering ? visible.length > 0 : true;
       return { g, idx, visible, goalVisible };
     }).filter(b => b.goalVisible);
 
@@ -1436,8 +1453,10 @@ function renderGoalGroup(g, idx, visibleProjects) {
     ? `<span class="g-sep">|</span><span class="g-desc">${esc(g.description)}</span>`
     : '';
 
+  const hasAnyProjects = S.projects.some(p => p.goalId===g.id);
+  const emptyMsg = hasAnyProjects ? 'No active projects' : 'No projects yet.';
   const rowsHtml = visibleProjects.map(renderProjectRow).join('') ||
-    `<div class="tree-empty-goal">No projects yet.</div>`;
+    `<div class="tree-empty-goal">${emptyMsg}</div>`;
 
   return `<div class="g-group${collapsed}">
     <div class="g-header" data-goal-collapse="${g.id}">
@@ -1469,7 +1488,7 @@ function renderProjectRow(p) {
     `<option value="${s}" ${s===priority?'selected':''}>${PRIORITY_LABELS[s]}</option>`).join('');
 
   const clickupCell = p.cuListId
-    ? `<a class="link-chip clickup" href="https://app.clickup.com/t/${esc(p.cuListId)}" target="_blank" rel="noopener" title="Open ClickUp list">${SVG_CLICKUP}ClickUp</a>`
+    ? `<a class="link-chip clickup" href="${esc(cuListUrl(p.cuListId))}" target="_blank" rel="noopener" title="Open ClickUp list">${SVG_CLICKUP}ClickUp</a>`
     : `<span class="link-dash" aria-hidden="true">—</span>`;
 
   const driveCell = p.driveUrl
@@ -1988,7 +2007,7 @@ document.getElementById('pSave').addEventListener('click', async () => {
     type: document.getElementById('pType').value,
     status: document.getElementById('pStatus').value,
     priority: document.getElementById('pPriority').value,
-    driveUrl: document.getElementById('pDriveUrl').value.trim() || null,
+    driveUrl: normalizeUrl(document.getElementById('pDriveUrl').value.trim()) || null,
   };
 
   document.getElementById('pSaveLabel').textContent = 'Saving…';
